@@ -130,8 +130,8 @@ export default function PaginaQuran({
   useEffect(() => {
     if (typeof window === "undefined") return;
     const win = window as Window & {
-      SpeechRecognition?: typeof SpeechRecognition;
-      webkitSpeechRecognition?: typeof SpeechRecognition;
+      SpeechRecognition?: any;
+      webkitSpeechRecognition?: any;
     };
     const SR = win.SpeechRecognition || win.webkitSpeechRecognition;
     if (!SR) return;
