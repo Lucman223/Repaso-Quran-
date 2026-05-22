@@ -139,7 +139,7 @@ export default function PaginaQuran({
     rec.continuous = true;
     rec.interimResults = true;
     rec.lang = "ar-SA";
-    rec.onresult = (e: SpeechRecognitionEvent) => {
+    rec.onresult = (e: any) => {
       let t = "";
       for (let i = e.resultIndex; i < e.results.length; i++) {
         t += e.results[i][0].transcript;
