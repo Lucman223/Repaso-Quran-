@@ -39,7 +39,7 @@ export function getAyahAudioUrl(verseKey: string, reciter: Reciter = 'minshawi')
 
 // Nueva función para obtener el audio de la página completa (para la transición de K.R.H.)
 export function getPageAudioUrl(absolutePage: number, vueltaId: string): string {
-  return `/Coran/${vueltaId}V/KRH/P${absolutePage}.mp3`;
+  return `/Coran/${vueltaId}V/KRH/P${absolutePage}.mp4`;
 }
 
 export async function fetchPageVerses(absolutePage: number): Promise<Verse[]> {

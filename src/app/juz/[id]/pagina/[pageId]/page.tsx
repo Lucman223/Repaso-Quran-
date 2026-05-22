@@ -508,10 +508,10 @@ export default function PaginaQuran({
             <audio 
               controls 
               className="w-full h-10 rounded-full" 
-              src={`/Coran/${vueltaId}V/KRH/P${localPageNumber}.mp3`}
+              src={`/Coran/${vueltaId}V/KRH/P${localPageNumber}.mp4`}
             />
             <p className="text-[10px] text-center opacity-50 mt-1">
-              Esperando archivo local: <code className="bg-[var(--color-card)] p-0.5 rounded border border-[var(--color-border)]">public/Coran/{vueltaId}V/KRH/P{localPageNumber}.mp3</code>
+              Esperando archivo local: <code className="bg-[var(--color-card)] p-0.5 rounded border border-[var(--color-border)]">public/Coran/{vueltaId}V/KRH/P{localPageNumber}.mp4</code>
             </p>
           </div>
         )}
