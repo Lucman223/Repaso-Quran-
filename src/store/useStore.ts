@@ -68,7 +68,7 @@ export const useRepasaStore = create<RepasaState>()(
       })),
     }),
     {
-      name: 'repasa-storage',
+      name: 'repasa-storage-v2',
       partialize: (state) => ({
         completedVueltas: state.completedVueltas,
         pageStats: state.pageStats,
