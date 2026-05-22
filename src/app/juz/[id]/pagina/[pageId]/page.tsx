@@ -70,7 +70,7 @@ export default function PaginaQuran({
   // Recording
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState("");
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<any>(null);
 
   // Bucle A-B
   const [loopStart, setLoopStart] = useState<string>("");
