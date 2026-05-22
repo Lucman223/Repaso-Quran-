@@ -368,7 +368,7 @@ export default function PaginaQuran({
         ) : (
         <div className="flex flex-col">
           {/* A-B Repeat UI */}
-          {verses.length > 0 && (
+          {verses.length > 0 && reciter !== 'krh' && (
             <div className="mx-4 my-3 p-4 bg-[var(--color-card)] rounded-xl border border-[var(--color-border)] shadow-sm">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-xs font-semibold text-[var(--color-gold)] flex items-center gap-1.5 uppercase tracking-wider">
@@ -454,25 +454,27 @@ export default function PaginaQuran({
                 </p>
 
                 {/* Play button */}
-                <div className="flex justify-end mt-2">
-                  <button
-                    onClick={() => playVerse(verse.verse_key)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all active:scale-95 ${
-                      isThisPlaying
-                        ? "bg-[var(--color-primary)] text-white"
-                        : "bg-[var(--color-card)] border border-[var(--color-border)] text-[var(--color-foreground)] hover:border-[var(--color-primary)]"
-                    }`}
-                  >
-                    {isThisLoading ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    ) : isThisPlaying ? (
-                      <Pause className="w-3.5 h-3.5" />
-                    ) : (
-                      <Play className="w-3.5 h-3.5 ml-0.5" />
-                    )}
-                    {isThisPlaying ? "Pausar" : "Escuchar"}
-                  </button>
-                </div>
+                {reciter !== 'krh' && (
+                  <div className="flex justify-end mt-2">
+                    <button
+                      onClick={() => playVerse(verse.verse_key)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all active:scale-95 ${
+                        isThisPlaying
+                          ? "bg-[var(--color-primary)] text-white"
+                          : "bg-[var(--color-card)] border border-[var(--color-border)] text-[var(--color-foreground)] hover:border-[var(--color-primary)]"
+                      }`}
+                    >
+                      {isThisLoading ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : isThisPlaying ? (
+                        <Pause className="w-3.5 h-3.5" />
+                      ) : (
+                        <Play className="w-3.5 h-3.5 ml-0.5" />
+                      )}
+                      {isThisPlaying ? "Pausar" : "Escuchar"}
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })}
@@ -497,6 +499,20 @@ export default function PaginaQuran({
                 Recitando...
               </span>
             )}
+          </div>
+        )}
+
+        {/* Reproductor Global de K.R.H. (Audio por página) */}
+        {reciter === 'krh' && (
+          <div className="mb-3 max-w-sm mx-auto">
+            <audio 
+              controls 
+              className="w-full h-10 rounded-full" 
+              src={`/Coran/${vueltaId}V/KRH/P${localPageNumber}.mp3`}
+            />
+            <p className="text-[10px] text-center opacity-50 mt-1">
+              Esperando archivo local: <code className="bg-[var(--color-card)] p-0.5 rounded border border-[var(--color-border)]">public/Coran/{vueltaId}V/KRH/P{localPageNumber}.mp3</code>
+            </p>
           </div>
         )}
 

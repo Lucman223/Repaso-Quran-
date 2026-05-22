@@ -5,10 +5,10 @@ export interface Verse {
   text_uthmani: string;
 }
 
-export type Reciter = 'mishari' | 'husary' | 'minshawi';
+export type Reciter = 'krh' | 'husary' | 'minshawi';
 
 export const RECITERS = {
-  mishari: { nameAr: 'مشاري العفاسي', nameEs: 'Mishary' },
+  krh: { nameAr: 'ك. ر. هـ', nameEs: 'K.R.H.' },
   husary: { nameAr: 'محمود خليل الحصري', nameEs: 'Al-Husary' },
   minshawi: { nameAr: 'محمد صديق المنشاوي', nameEs: 'Minshawi (Mujawwad)' },
 } as const satisfies Record<Reciter, { nameAr: string; nameEs: string }>;
@@ -19,20 +19,27 @@ export const JUZ_STARTING_PAGES = [
   402, 422, 442, 462, 482, 502, 522, 542, 562, 582,
 ];
 
-export function getAyahAudioUrl(verseKey: string, reciter: Reciter = 'mishari'): string {
+export function getAyahAudioUrl(verseKey: string, reciter: Reciter = 'minshawi'): string {
   // verseKey viene como "1:1" -> necesitamos "001001"
   const [sura, ayah] = verseKey.split(':');
   const suraPad = sura.padStart(3, '0');
   const ayahPad = ayah.padStart(3, '0');
   const file = `${suraPad}${ayahPad}`;
 
-  if (reciter === 'mishari') {
-    return `https://everyayah.com/data/Alafasy_128kbps/${file}.mp3`;
+  if (reciter === 'krh') {
+    // Cuando el usuario tenga las aleyas troceadas, se guardarán aquí:
+    // (Ajustaremos la ruta si es necesario, de momento asumimos que van a /Coran/Audios/KRH/)
+    return `/Coran/Audios/KRH/${file}.mp3`;
   }
   if (reciter === 'husary') {
     return `https://everyayah.com/data/Husary_128kbps/${file}.mp3`;
   }
   return `https://everyayah.com/data/Minshawy_Mujawwad_192kbps/${file}.mp3`;
+}
+
+// Nueva función para obtener el audio de la página completa (para la transición de K.R.H.)
+export function getPageAudioUrl(absolutePage: number, vueltaId: string): string {
+  return `/Coran/${vueltaId}V/KRH/P${absolutePage}.mp3`;
 }
 
 export async function fetchPageVerses(absolutePage: number): Promise<Verse[]> {
