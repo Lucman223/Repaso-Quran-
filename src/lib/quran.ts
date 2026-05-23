@@ -19,6 +19,8 @@ export const JUZ_STARTING_PAGES = [
   402, 422, 442, 462, 482, 502, 522, 542, 562, 582,
 ];
 
+export const AVAILABLE_VUELTAS = [1, 2];
+
 export function getAyahAudioUrl(verseKey: string, reciter: Reciter = 'minshawi'): string {
   // verseKey viene como "1:1" -> necesitamos "001001"
   const [sura, ayah] = verseKey.split(':');

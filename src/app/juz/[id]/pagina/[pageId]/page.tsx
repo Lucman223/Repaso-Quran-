@@ -362,7 +362,7 @@ export default function PaginaQuran({
               />
             </div>
             <p className="opacity-50 text-xs text-center p-2 border-t border-[var(--color-border)] bg-black/5 font-medium text-[var(--color-gold)]">
-              (Archivos de tu propia carpeta V1 - Archivo: P{localPageNumber}.png)
+              (Archivos de tu propia carpeta V{vueltaId} - Archivo: P{localPageNumber}.png)
             </p>
           </div>
         ) : (

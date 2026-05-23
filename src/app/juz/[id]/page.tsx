@@ -4,6 +4,7 @@ import { use } from "react";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, Circle, Lock } from "lucide-react";
 import { useRepasaStore } from "@/store/useStore";
+import { AVAILABLE_VUELTAS } from "@/lib/quran";
 
 export default function JuzPage({
   params,
@@ -19,9 +20,9 @@ export default function JuzPage({
     const vueltaNum = i + 1;
     const pageId = 21 - vueltaNum;
     const isCompleted = completedVueltas.includes(vueltaNum);
-    // Each vuelta is unlocked: either it's already done, or it's the next one
-    const isNext = vueltaNum === completedVueltas.length + 1;
-    const isLocked = vueltaNum > completedVueltas.length + 1 && !isCompleted;
+    const isAvailable = AVAILABLE_VUELTAS.includes(vueltaNum);
+    const isLocked = !isAvailable;
+    const isNext = isAvailable && vueltaNum === completedVueltas.length + 1;
     return { vueltaNum, pageId, isCompleted, isNext, isLocked };
   });
 
