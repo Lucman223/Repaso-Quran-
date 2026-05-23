@@ -260,7 +260,7 @@ export default function PaginaQuran({
         </Link>
         <div className="flex-1 min-w-0">
           <h1 className="text-base font-bold truncate">
-            Juz {id} · Página {pageId}
+            Juz {id} · Página {localPageNumber}
           </h1>
           <p className="text-[10px] opacity-50 uppercase tracking-wider">
             Vuelta {vueltaId}

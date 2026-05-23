@@ -22,12 +22,13 @@ export default function VueltaPage({
     
     // pageId correspondiente para esta vuelta: pageId = 21 - vueltaId
     const pageId = 21 - vId;
+    const localPageNumber = (juzNum - 1) * 20 + pageId;
 
     return {
       juzNum,
       arabicTitle: `الجزء ${juzNum}`,
       isCompleted,
-      pageId,
+      localPageNumber,
     };
   });
 
@@ -86,7 +87,7 @@ export default function VueltaPage({
                   <p className="font-amiri text-lg text-[var(--color-primary)] leading-none mb-0.5">
                     {item.arabicTitle}
                   </p>
-                  <p className="text-xs opacity-50">Juz {item.juzNum} · Pág. {item.pageId}</p>
+                  <p className="text-xs opacity-50">Juz {item.juzNum} · Pág. {item.localPageNumber}</p>
                 </div>
               </div>
 
