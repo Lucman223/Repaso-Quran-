@@ -27,14 +27,18 @@ import {
 export default function PaginaQuran({
   params,
 }: {
-  params: Promise<{ id: string; pageId: string }>;
+  params: Promise<{ vueltaId: string; juzId: string }>;
 }) {
-  const { id, pageId } = use(params);
+  const { vueltaId: rawVueltaId, juzId: rawJuzId } = use(params);
 
+  const vueltaId = parseInt(rawVueltaId);
+  const jId = parseInt(rawJuzId);
+  const id = String(jId); // Para mantener la compatibilidad con el resto del código
+
+  const pageId = 21 - vueltaId;
   const pageKey = `juz_${id}_pagina_${pageId}`;
-  const vueltaId = 21 - parseInt(pageId);
-  const absolutePage = (JUZ_STARTING_PAGES[parseInt(id) - 1] ?? 1) + parseInt(pageId) - 1;
-  const localPageNumber = (parseInt(id) - 1) * 20 + parseInt(pageId); // P20, P40, P60...
+  const absolutePage = (JUZ_STARTING_PAGES[jId - 1] ?? 1) + pageId - 1;
+  const localPageNumber = (jId - 1) * 20 + pageId; // P20, P40, P60...
 
   const {
     pageStats,
@@ -43,7 +47,6 @@ export default function PaginaQuran({
     completedVueltas,
     incrementListen,
     incrementRecord,
-    markVueltaCompleted,
     toggleVueltaCompleted,
     setReciter,
     cachePageVerses,
@@ -194,10 +197,12 @@ export default function PaginaQuran({
       return;
     }
 
-    audioRef.current.src = url;
+    if (audioRef.current) {
+      audioRef.current.src = url;
+    }
     setPlayingKey(verseKey);
     setAudioLoading(true);
-    audioRef.current.play().catch(() => setAudioLoading(false));
+    audioRef.current?.play().catch(() => setAudioLoading(false));
     incrementListen(pageKey);
   };
 
@@ -248,7 +253,7 @@ export default function PaginaQuran({
       {/* Header */}
       <header className="sticky top-0 z-10 flex items-center gap-4 p-4 bg-[var(--color-background)]/80 backdrop-blur-md border-b border-[var(--color-gold)]/30 shadow-sm">
         <Link
-          href={`/juz/${id}`}
+          href={`/vuelta/${vueltaId}`}
           className="p-2 -ml-2 rounded-full hover:bg-[var(--color-card)] transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
@@ -287,31 +292,30 @@ export default function PaginaQuran({
         </div>
 
         <div className="flex items-center gap-2">
-
-        {(Object.keys(RECITERS) as Reciter[]).map((r) => (
+          {(Object.keys(RECITERS) as Reciter[]).map((r) => (
+            <button
+              key={r}
+              onClick={() => changeReciter(r)}
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                reciter === r
+                  ? "bg-[var(--color-primary)] text-white shadow-sm"
+                  : "bg-[var(--color-background)] opacity-60 hover:opacity-100"
+              }`}
+            >
+              {RECITERS[r].nameEs}
+            </button>
+          ))}
           <button
-            key={r}
-            onClick={() => changeReciter(r)}
-            className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
-              reciter === r
-                ? "bg-[var(--color-primary)] text-white shadow-sm"
-                : "bg-[var(--color-background)] opacity-60 hover:opacity-100"
+            onClick={() => setRepeatMode((v) => !v)}
+            title="Repetir aleya"
+            className={`ml-auto p-1.5 rounded-full transition-all ${
+              repeatMode
+                ? "bg-[var(--color-primary)] text-white"
+                : "opacity-50 hover:opacity-100"
             }`}
           >
-            {RECITERS[r].nameEs}
+            <RotateCcw className="w-3.5 h-3.5" />
           </button>
-        ))}
-        <button
-          onClick={() => setRepeatMode((v) => !v)}
-          title="Repetir aleya"
-          className={`ml-auto p-1.5 rounded-full transition-all ${
-            repeatMode
-              ? "bg-[var(--color-primary)] text-white"
-              : "opacity-50 hover:opacity-100"
-          }`}
-        >
-          <RotateCcw className="w-3.5 h-3.5" />
-        </button>
         </div>
       </div>
 
@@ -366,120 +370,120 @@ export default function PaginaQuran({
             </p>
           </div>
         ) : (
-        <div className="flex flex-col">
-          {/* A-B Repeat UI */}
-          {verses.length > 0 && reciter !== 'krh' && (
-            <div className="mx-4 my-3 p-4 bg-[var(--color-card)] rounded-xl border border-[var(--color-border)] shadow-sm">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-xs font-semibold text-[var(--color-gold)] flex items-center gap-1.5 uppercase tracking-wider">
-                  <Repeat className="w-3.5 h-3.5" /> Bucle de Memorización
-                </h3>
-                {isLoopActive && (
-                  <span className="text-[10px] bg-[var(--color-primary)] text-white px-2 py-0.5 rounded-full font-bold animate-pulse">
-                    Repetición {currentLoopIteration + 1} / {loopCount}
-                  </span>
-                )}
-              </div>
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-[10px] opacity-60 uppercase font-medium mb-1">Desde</label>
-                  <select 
-                    value={loopStart}
-                    onChange={(e) => setLoopStart(e.target.value)}
-                    disabled={isLoopActive}
-                    className="w-full bg-transparent border-b border-[var(--color-border)] text-sm pb-1 focus:outline-none focus:border-[var(--color-gold)] disabled:opacity-50"
-                  >
-                    {verses.map(v => <option key={`start-${v.id}`} value={v.verse_key}>{v.verse_key} ({v.verse_number})</option>)}
-                  </select>
+          <div className="flex flex-col">
+            {/* A-B Repeat UI */}
+            {verses.length > 0 && reciter !== 'krh' && (
+              <div className="mx-4 my-3 p-4 bg-[var(--color-card)] rounded-xl border border-[var(--color-border)] shadow-sm">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-xs font-semibold text-[var(--color-gold)] flex items-center gap-1.5 uppercase tracking-wider">
+                    <Repeat className="w-3.5 h-3.5" /> Bucle de Memorización
+                  </h3>
+                  {isLoopActive && (
+                    <span className="text-[10px] bg-[var(--color-primary)] text-white px-2 py-0.5 rounded-full font-bold animate-pulse">
+                      Repetición {currentLoopIteration + 1} / {loopCount}
+                    </span>
+                  )}
                 </div>
-                <div>
-                  <label className="block text-[10px] opacity-60 uppercase font-medium mb-1">Hasta</label>
-                  <select 
-                    value={loopEnd}
-                    onChange={(e) => setLoopEnd(e.target.value)}
-                    disabled={isLoopActive}
-                    className="w-full bg-transparent border-b border-[var(--color-border)] text-sm pb-1 focus:outline-none focus:border-[var(--color-gold)] disabled:opacity-50"
-                  >
-                    {verses.map(v => <option key={`end-${v.id}`} value={v.verse_key}>{v.verse_key} ({v.verse_number})</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-[10px] opacity-60 uppercase font-medium mb-1">Veces</label>
-                  <input 
-                    type="number" 
-                    min="1" 
-                    max="100"
-                    value={loopCount}
-                    onChange={(e) => setLoopCount(Number(e.target.value))}
-                    disabled={isLoopActive}
-                    className="w-full bg-transparent border-b border-[var(--color-border)] text-sm pb-1 focus:outline-none focus:border-[var(--color-gold)] disabled:opacity-50"
-                  />
-                </div>
-              </div>
-              <button 
-                onClick={toggleLoop}
-                className={`w-full mt-4 py-2 rounded-lg text-xs font-bold transition-all shadow-sm ${
-                  isLoopActive 
-                    ? "bg-red-500/10 text-red-600 border border-red-500/30 hover:bg-red-500/20" 
-                    : "bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/30 hover:bg-[var(--color-primary)]/20"
-                }`}
-              >
-                {isLoopActive ? "■ Detener Bucle" : "▶ Iniciar Memorización"}
-              </button>
-            </div>
-          )}
-
-          <div className="divide-y divide-[var(--color-border)] border-t border-[var(--color-border)]">
-            {verses.map((verse) => {
-              const isThisPlaying = playingKey === verse.verse_key && isPlaying;
-            const isThisLoading = playingKey === verse.verse_key && audioLoading;
-            return (
-              <div
-                key={verse.id}
-                className={`px-4 py-4 transition-colors ${
-                  playingKey === verse.verse_key
-                    ? "bg-[var(--color-primary)]/6"
-                    : ""
-                }`}
-              >
-                {/* Arabic text */}
-                <p
-                  dir="rtl"
-                  className="font-amiri text-2xl leading-loose text-right text-[var(--color-foreground)]"
-                >
-                  {verse.text_uthmani}
-                  <span className="text-[var(--color-primary)] text-lg mr-1">
-                    ﴿{verse.verse_number}﴾
-                  </span>
-                </p>
-
-                {/* Play button */}
-                {reciter !== 'krh' && (
-                  <div className="flex justify-end mt-2">
-                    <button
-                      onClick={() => playVerse(verse.verse_key)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all active:scale-95 ${
-                        isThisPlaying
-                          ? "bg-[var(--color-primary)] text-white"
-                          : "bg-[var(--color-card)] border border-[var(--color-border)] text-[var(--color-foreground)] hover:border-[var(--color-primary)]"
-                      }`}
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-[10px] opacity-60 uppercase font-medium mb-1">Desde</label>
+                    <select 
+                      value={loopStart}
+                      onChange={(e) => setLoopStart(e.target.value)}
+                      disabled={isLoopActive}
+                      className="w-full bg-transparent border-b border-[var(--color-border)] text-sm pb-1 focus:outline-none focus:border-[var(--color-gold)] disabled:opacity-50"
                     >
-                      {isThisLoading ? (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      ) : isThisPlaying ? (
-                        <Pause className="w-3.5 h-3.5" />
-                      ) : (
-                        <Play className="w-3.5 h-3.5 ml-0.5" />
-                      )}
-                      {isThisPlaying ? "Pausar" : "Escuchar"}
-                    </button>
+                      {verses.map(v => <option key={`start-${v.id}`} value={v.verse_key}>{v.verse_key} ({v.verse_number})</option>)}
+                    </select>
                   </div>
-                )}
+                  <div>
+                    <label className="block text-[10px] opacity-60 uppercase font-medium mb-1">Hasta</label>
+                    <select 
+                      value={loopEnd}
+                      onChange={(e) => setLoopEnd(e.target.value)}
+                      disabled={isLoopActive}
+                      className="w-full bg-transparent border-b border-[var(--color-border)] text-sm pb-1 focus:outline-none focus:border-[var(--color-gold)] disabled:opacity-50"
+                    >
+                      {verses.map(v => <option key={`end-${v.id}`} value={v.verse_key}>{v.verse_key} ({v.verse_number})</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] opacity-60 uppercase font-medium mb-1">Veces</label>
+                    <input 
+                      type="number" 
+                      min="1" 
+                      max="100"
+                      value={loopCount}
+                      onChange={(e) => setLoopCount(Number(e.target.value))}
+                      disabled={isLoopActive}
+                      className="w-full bg-transparent border-b border-[var(--color-border)] text-sm pb-1 focus:outline-none focus:border-[var(--color-gold)] disabled:opacity-50"
+                    />
+                  </div>
+                </div>
+                <button 
+                  onClick={toggleLoop}
+                  className={`w-full mt-4 py-2 rounded-lg text-xs font-bold transition-all shadow-sm ${
+                    isLoopActive 
+                      ? "bg-red-500/10 text-red-600 border border-red-500/30 hover:bg-red-500/20" 
+                      : "bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/30 hover:bg-[var(--color-primary)]/20"
+                  }`}
+                >
+                  {isLoopActive ? "■ Detener Bucle" : "▶ Iniciar Memorización"}
+                </button>
               </div>
-            );
-          })}
-        </div>
-        </div>
+            )}
+
+            <div className="divide-y divide-[var(--color-border)] border-t border-[var(--color-border)]">
+              {verses.map((verse) => {
+                const isThisPlaying = playingKey === verse.verse_key && isPlaying;
+                const isThisLoading = playingKey === verse.verse_key && audioLoading;
+                return (
+                  <div
+                    key={verse.id}
+                    className={`px-4 py-4 transition-colors ${
+                      playingKey === verse.verse_key
+                        ? "bg-[var(--color-primary)]/6"
+                        : ""
+                    }`}
+                  >
+                    {/* Arabic text */}
+                    <p
+                      dir="rtl"
+                      className="font-amiri text-2xl leading-loose text-right text-[var(--color-foreground)]"
+                    >
+                      {verse.text_uthmani}
+                      <span className="text-[var(--color-primary)] text-lg mr-1">
+                        ﴿{verse.verse_number}﴾
+                      </span>
+                    </p>
+
+                    {/* Play button */}
+                    {reciter !== 'krh' && (
+                      <div className="flex justify-end mt-2">
+                        <button
+                          onClick={() => playVerse(verse.verse_key)}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all active:scale-95 ${
+                            isThisPlaying
+                              ? "bg-[var(--color-primary)] text-white"
+                              : "bg-[var(--color-card)] border border-[var(--color-border)] text-[var(--color-foreground)] hover:border-[var(--color-primary)]"
+                          }`}
+                        >
+                          {isThisLoading ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : isThisPlaying ? (
+                            <Pause className="w-3.5 h-3.5" />
+                          ) : (
+                            <Play className="w-3.5 h-3.5 ml-0.5" />
+                          )}
+                          {isThisPlaying ? "Pausar" : "Escuchar"}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         )}
 
         {/* Bottom spacer so content isn't hidden behind the fixed bar */}
