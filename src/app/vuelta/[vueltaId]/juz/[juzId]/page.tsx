@@ -23,6 +23,7 @@ import {
   type Reciter,
   type Verse,
 } from "@/lib/quran";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function PaginaQuran({
   params,
@@ -51,6 +52,7 @@ export default function PaginaQuran({
     setReciter,
     cachePageVerses,
   } = useRepasaStore();
+  const { t } = useTranslation();
 
   const currentStats = pageStats[pageKey] ?? { listenCount: 0, recordCount: 0 };
   const isVueltaCompleted = (completedVueltas[id] ?? []).includes(vueltaId);
@@ -315,12 +317,12 @@ export default function PaginaQuran({
             Juz {id} · Página {localPageNumber}
           </h1>
           <p className="text-[10px] opacity-50 uppercase tracking-wider">
-            Vuelta {vueltaId}
+            {t('juz.vuelta')} {vueltaId}
           </p>
         </div>
         {isVueltaCompleted && (
           <span className="flex items-center gap-1 text-xs text-[var(--color-primary)] font-medium bg-[var(--color-primary)]/10 px-2 py-1 rounded-full shrink-0">
-            <CheckCircle2 className="w-3 h-3" /> Hecha
+            <CheckCircle2 className="w-3 h-3" /> {t('juz.done')}
           </span>
         )}
       </header>
@@ -333,13 +335,13 @@ export default function PaginaQuran({
             onClick={() => setSelectionMode("imagen")}
             className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${selectionMode === "imagen" ? "bg-[var(--color-card)] text-[var(--color-primary)] shadow-sm" : "opacity-60"}`}
           >
-            Imagen
+            {t('juz.image')}
           </button>
           <button 
             onClick={() => setSelectionMode("texto")}
             className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${selectionMode === "texto" ? "bg-[var(--color-card)] text-[var(--color-primary)] shadow-sm" : "opacity-60"}`}
           >
-            Texto
+            {t('juz.text')}
           </button>
         </div>
 
@@ -359,7 +361,7 @@ export default function PaginaQuran({
           ))}
           <button
             onClick={() => setRepeatMode((v) => !v)}
-            title="Repetir aleya"
+            title={t('juz.repeatVerse')}
             className={`ml-auto p-1.5 rounded-full transition-all ${
               repeatMode
                 ? "bg-[var(--color-primary)] text-white"
@@ -376,7 +378,7 @@ export default function PaginaQuran({
         {loading && (
           <div className="flex flex-col items-center justify-center h-48 gap-3 opacity-60">
             <Loader2 className="w-7 h-7 animate-spin text-[var(--color-primary)]" />
-            <p className="text-sm">Cargando aleyas...</p>
+            <p className="text-sm">{ t('juz.loadingVerses')}</p>
           </div>
         )}
 
@@ -384,14 +386,14 @@ export default function PaginaQuran({
           <div className="flex flex-col items-center justify-center h-48 gap-3 p-6 text-center">
             <WifiOff className="w-8 h-8 opacity-40" />
             <p className="text-sm opacity-60">
-              No se pudo conectar al servidor. Comprueba tu conexión e intenta de nuevo.
+              {t('juz.noConnection')}
             </p>
           </div>
         )}
 
         {!loading && !fetchError && verses.length === 0 && (
           <div className="flex items-center justify-center h-48">
-            <p className="text-sm opacity-50">No hay aleyas en esta página.</p>
+            <p className="text-sm opacity-50">{t('juz.noVerses')}</p>
           </div>
         )}
 
@@ -428,17 +430,17 @@ export default function PaginaQuran({
               <div className="mx-4 my-3 p-4 bg-[var(--color-card)] rounded-xl border border-[var(--color-border)] shadow-sm">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-xs font-semibold text-[var(--color-gold)] flex items-center gap-1.5 uppercase tracking-wider">
-                    <Repeat className="w-3.5 h-3.5" /> Bucle de Memorización
+                    <Repeat className="w-3.5 h-3.5" /> {t('juz.memorizeLoop')}
                   </h3>
                   {isLoopActive && (
                     <span className="text-[10px] bg-[var(--color-primary)] text-white px-2 py-0.5 rounded-full font-bold animate-pulse">
-                      Repetición {currentLoopIteration + 1} / {loopCount}
+                      {t('juz.repetition', { n: String(currentLoopIteration + 1), total: String(loopCount) })}
                     </span>
                   )}
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-[10px] opacity-60 uppercase font-medium mb-1">Desde</label>
+                    <label className="block text-[10px] opacity-60 uppercase font-medium mb-1">{t('juz.from')}</label>
                     <select 
                       value={loopStart}
                       onChange={(e) => setLoopStart(e.target.value)}
@@ -449,7 +451,7 @@ export default function PaginaQuran({
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[10px] opacity-60 uppercase font-medium mb-1">Hasta</label>
+                    <label className="block text-[10px] opacity-60 uppercase font-medium mb-1">{t('juz.to')}</label>
                     <select 
                       value={loopEnd}
                       onChange={(e) => setLoopEnd(e.target.value)}
@@ -460,7 +462,7 @@ export default function PaginaQuran({
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[10px] opacity-60 uppercase font-medium mb-1">Veces</label>
+                    <label className="block text-[10px] opacity-60 uppercase font-medium mb-1">{t('juz.times')}</label>
                     <input 
                       type="number" 
                       min="1" 
@@ -480,7 +482,7 @@ export default function PaginaQuran({
                       : "bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/30 hover:bg-[var(--color-primary)]/20"
                   }`}
                 >
-                  {isLoopActive ? "■ Detener Bucle" : "▶ Iniciar Memorización"}
+                  {isLoopActive ? t('juz.stopLoop') : t('juz.startMemorize')}
                 </button>
               </div>
             )}
@@ -527,7 +529,7 @@ export default function PaginaQuran({
                           ) : (
                             <Play className="w-3.5 h-3.5 ml-0.5" />
                           )}
-                          {isThisPlaying ? "Pausar" : "Escuchar"}
+                          {isThisPlaying ? t('juz.pause') : t('juz.listen')}
                         </button>
                       </div>
                     )}
@@ -552,7 +554,7 @@ export default function PaginaQuran({
           >
             {transcript || (
               <span className="opacity-30 text-base not-italic">
-                Recitando...
+                {t('juz.reciting')}
               </span>
             )}
           </div>
@@ -576,7 +578,7 @@ export default function PaginaQuran({
               <span>Reproducción de página completa. Archivo: <code className="bg-[var(--color-card)] p-0.5 rounded border border-[var(--color-border)]">public/Coran/{vueltaId}V/KRH/P{localPageNumber}.mp4</code></span>
               {reciter === 'krh' && !krhAudiosAvailable && (
                 <span className="text-[10px] text-[var(--color-gold)] font-medium">
-                  ⚠️ Reproducción por aleyas no disponible para esta página. Ejecuta el script de troceado.
+                  {t('juz.audioNotReady')}
                 </span>
               )}
             </p>
@@ -585,8 +587,8 @@ export default function PaginaQuran({
 
         {/* Stats row */}
         <div className="flex justify-center gap-6 mb-3 text-xs opacity-50">
-          <span>🎧 {currentStats.listenCount} escuchas</span>
-          <span>🎤 {currentStats.recordCount} recitaciones</span>
+          <span>🎧 {currentStats.listenCount} {t('juz.listens')}</span>
+          <span>🎤 {currentStats.recordCount} {t('juz.recitations')}</span>
         </div>
 
         <div className="flex items-center gap-3 max-w-sm mx-auto">
@@ -618,10 +620,10 @@ export default function PaginaQuran({
             {isVueltaCompleted ? (
               <>
                 <CheckCircle2 className="w-4 h-4" />
-                Completada · Desmarcar
+                {t('juz.markUncompleted')}
               </>
             ) : (
-              "Marcar vuelta completada"
+              t('juz.markCompleted')
             )}
           </button>
         </div>

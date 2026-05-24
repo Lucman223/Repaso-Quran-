@@ -1,0 +1,49 @@
+{
+  "home": {
+    "arabicTitle": "مراجعة",
+    "subtitle": "Tekrar",
+    "totalProgress": "Toplam ilerleme",
+    "vueltas": "tur",
+    "selectVuelta": "Bir Tur Seç",
+    "vuelta": "Tur",
+    "juzs": "Cüz"
+  },
+  "vuelta": {
+    "method": "Osmanlı usulü · {completed}/30 Cüz tamamlandı",
+    "description": "{n}. Tur için 30 Cüzün listesi. Sayfasına gitmek için herhangi birini seç.",
+    "juz": "Cüz",
+    "page": "Sayfa",
+    "completed": "tamamlandı"
+  },
+  "juz": {
+    "vuelta": "Tur",
+    "loadingVerses": "Ayetler yükleniyor...",
+    "noConnection": "Sunucuya bağlanılamadı. Bağlantını kontrol et ve tekrar dene.",
+    "noVerses": "Bu sayfada ayet yok.",
+    "image": "Görsel",
+    "text": "Metin",
+    "listen": "Dinle",
+    "pause": "Duraklat",
+    "repeatVerse": "Ayeti tekrarla",
+    "memorizeLoop": "Ezberleme Döngüsü",
+    "repetition": "Tekrar {n} / {total}",
+    "from": "Başlangıç",
+    "to": "Bitiş",
+    "times": "Kez",
+    "startMemorize": "▶ Ezberlemeye Başla",
+    "stopLoop": "■ Döngüyü Durdur",
+    "reciting": "Okunuyor...",
+    "markCompleted": "Turu tamamlandı olarak işaretle",
+    "markUncompleted": "Tamamlandı · İşareti kaldır",
+    "done": "Tamam",
+    "listens": "dinleme",
+    "recitations": "okuma",
+    "audioNotReady": "⚠️ Bu sayfa için ayet bazlı oynatma mevcut değil. Bölme betiğini çalıştır.",
+    "fullPageAudio": "Tam sayfa oynatma. Dosya:",
+    "missingImage": "Yerel görsel eksik.",
+    "missingImageHint": "Lütfen görseli şuraya yükle:"
+  },
+  "lang": {
+    "toggle": "ES"
+  }
+}

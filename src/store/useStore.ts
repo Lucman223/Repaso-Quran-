@@ -8,6 +8,7 @@ interface RepasaState {
   reciter: Reciter;
   pageCache: Record<number, Verse[]>;
   availableVueltas: number[];
+  locale: 'es' | 'tr';
 
   markVueltaCompleted: (juzId: string, vueltaId: number) => void;
   toggleVueltaCompleted: (juzId: string, vueltaId: number) => void;
@@ -16,6 +17,7 @@ interface RepasaState {
   setReciter: (reciter: Reciter) => void;
   cachePageVerses: (absolutePage: number, verses: Verse[]) => void;
   fetchAvailableVueltas: () => Promise<void>;
+  setLocale: (locale: 'es' | 'tr') => void;
 }
 
 export const useRepasaStore = create<RepasaState>()(
@@ -26,6 +28,7 @@ export const useRepasaStore = create<RepasaState>()(
       reciter: 'husary',
       pageCache: {},
       availableVueltas: [1, 2], // Valor inicial por defecto
+      locale: 'es' as const,
 
       markVueltaCompleted: (juzId, vueltaId) => set((state) => {
         const currentJuz = state.completedVueltas[juzId] || [];
@@ -83,6 +86,8 @@ export const useRepasaStore = create<RepasaState>()(
           console.error("Error al obtener las vueltas desde la API:", e);
         }
       },
+
+      setLocale: (locale) => set({ locale }),
     }),
     {
       name: 'repaso-storage-v3', // Nombre actualizado de la plataforma
@@ -92,6 +97,7 @@ export const useRepasaStore = create<RepasaState>()(
         reciter: state.reciter,
         pageCache: state.pageCache,
         availableVueltas: state.availableVueltas,
+        locale: state.locale,
       }),
     }
   )

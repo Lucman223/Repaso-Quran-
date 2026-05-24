@@ -2,13 +2,16 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { BookOpen, Settings, Lock } from "lucide-react";
+import { BookOpen, Settings, Lock, Globe } from "lucide-react";
 import { useRepasaStore } from "@/store/useStore";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function Home() {
   const completedVueltasMap = useRepasaStore((state) => state.completedVueltas);
   const availableVueltas = useRepasaStore((state) => state.availableVueltas);
   const fetchAvailableVueltas = useRepasaStore((state) => state.fetchAvailableVueltas);
+  const setLocale = useRepasaStore((state) => state.setLocale);
+  const { t, locale } = useTranslation();
 
   useEffect(() => {
     fetchAvailableVueltas();
@@ -41,26 +44,37 @@ export default function Home() {
       <header className="sticky top-0 z-10 flex items-center justify-between p-5 bg-[var(--color-background)]/90 backdrop-blur border-b border-[var(--color-border)]">
         <div>
           <h1 className="text-3xl font-bold text-[var(--color-primary)] font-amiri tracking-wider">
-            مراجعة
+            {t('home.arabicTitle')}
           </h1>
           <p className="text-[10px] font-semibold opacity-50 uppercase tracking-widest mt-0.5">
-            Repaso
+            {t('home.subtitle')}
           </p>
         </div>
-        <button className="p-2 rounded-full hover:bg-[var(--color-card)] transition-colors">
-          <Settings className="w-5 h-5 opacity-60" />
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Selector de idioma */}
+          <button
+            onClick={() => setLocale(locale === 'es' ? 'tr' : 'es')}
+            title={locale === 'es' ? 'Cambiar a Türkçe' : "Español'a geç"}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-bold border border-[var(--color-border)] hover:border-[var(--color-primary)] hover:bg-[var(--color-card)] transition-all"
+          >
+            <Globe className="w-3.5 h-3.5 opacity-60" />
+            {t('lang.toggle')}
+          </button>
+          <button className="p-2 rounded-full hover:bg-[var(--color-card)] transition-colors">
+            <Settings className="w-5 h-5 opacity-60" />
+          </button>
+        </div>
       </header>
 
       <main className="flex-1 p-4 pb-8 max-w-2xl mx-auto w-full space-y-6">
         {/* Progreso total */}
         <div className="bg-[var(--color-primary)] text-white rounded-2xl p-5 shadow-lg relative overflow-hidden">
           <div className="relative z-10">
-            <p className="text-sm opacity-80 font-medium">Progreso total</p>
+            <p className="text-sm opacity-80 font-medium">{t('home.totalProgress')}</p>
             <div className="flex items-end gap-3 mt-1">
               <span className="text-4xl font-bold">{totalProgress}%</span>
               <span className="text-sm opacity-70 mb-1">
-                {totalCompleted}/{totalVueltas} vueltas
+                {totalCompleted}/{totalVueltas} {t('home.vueltas')}
               </span>
             </div>
             <div className="w-full bg-white/20 h-1.5 rounded-full mt-3 overflow-hidden">
@@ -76,7 +90,7 @@ export default function Home() {
         {/* Grid de Vueltas */}
         <div>
           <h2 className="text-base font-semibold opacity-70 mb-3 uppercase tracking-wider text-xs">
-            Selecciona una Vuelta
+            {t('home.selectVuelta')}
           </h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {vueltas.map((vuelta) => (
@@ -91,12 +105,12 @@ export default function Home() {
               >
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-bold text-[var(--color-primary)] group-hover:scale-105 transition-transform">
-                    Vuelta {vuelta.vueltaNum}
+                    {t('home.vuelta')} {vuelta.vueltaNum}
                   </span>
                   {!vuelta.isAvailable && <Lock className="w-3.5 h-3.5 opacity-55" />}
                 </div>
                 <span className="text-[11px] font-medium opacity-60">
-                  {vuelta.completedJuzs}/30 Juzs
+                  {vuelta.completedJuzs}/30 {t('home.juzs')}
                 </span>
                 <div className="w-full bg-[var(--color-border)] h-1 rounded-full overflow-hidden mt-1">
                   <div

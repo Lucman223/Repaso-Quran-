@@ -1,0 +1,49 @@
+{
+  "home": {
+    "arabicTitle": "مراجعة",
+    "subtitle": "Repaso",
+    "totalProgress": "Progreso total",
+    "vueltas": "vueltas",
+    "selectVuelta": "Selecciona una Vuelta",
+    "vuelta": "Vuelta",
+    "juzs": "Juzs"
+  },
+  "vuelta": {
+    "method": "Método Osmanlı · {completed}/30 Juzs completados",
+    "description": "Lista de los 30 Juzs para repasar en la Vuelta {n}. Selecciona cualquiera para ir a su página.",
+    "juz": "Juz",
+    "page": "Pág.",
+    "completed": "completados"
+  },
+  "juz": {
+    "vuelta": "Vuelta",
+    "loadingVerses": "Cargando aleyas...",
+    "noConnection": "No se pudo conectar al servidor. Comprueba tu conexión e intenta de nuevo.",
+    "noVerses": "No hay aleyas en esta página.",
+    "image": "Imagen",
+    "text": "Texto",
+    "listen": "Escuchar",
+    "pause": "Pausar",
+    "repeatVerse": "Repetir aleya",
+    "memorizeLoop": "Bucle de Memorización",
+    "repetition": "Repetición {n} / {total}",
+    "from": "Desde",
+    "to": "Hasta",
+    "times": "Veces",
+    "startMemorize": "▶ Iniciar Memorización",
+    "stopLoop": "■ Detener Bucle",
+    "reciting": "Recitando...",
+    "markCompleted": "Marcar vuelta completada",
+    "markUncompleted": "Completada · Desmarcar",
+    "done": "Hecha",
+    "listens": "escuchas",
+    "recitations": "recitaciones",
+    "audioNotReady": "⚠️ Reproducción por aleyas no disponible para esta página. Ejecuta el script de troceado.",
+    "fullPageAudio": "Reproducción de página completa. Archivo:",
+    "missingImage": "Falta tu imagen local.",
+    "missingImageHint": "Asegúrate de subir la captura en:"
+  },
+  "lang": {
+    "toggle": "TR"
+  }
+}
