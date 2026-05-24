@@ -44,7 +44,7 @@ export default function Home() {
             رَاجِع
           </h1>
           <p className="text-[10px] font-semibold opacity-50 uppercase tracking-widest mt-0.5">
-            Repasa
+            Repaso
           </p>
         </div>
         <button className="p-2 rounded-full hover:bg-[var(--color-card)] transition-colors">

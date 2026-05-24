@@ -85,7 +85,7 @@ export const useRepasaStore = create<RepasaState>()(
       },
     }),
     {
-      name: 'repasa-storage-v3', // Cambiamos la versión de almacenamiento para evitar inconsistencias
+      name: 'repaso-storage-v3', // Nombre actualizado de la plataforma
       partialize: (state) => ({
         completedVueltas: state.completedVueltas,
         pageStats: state.pageStats,

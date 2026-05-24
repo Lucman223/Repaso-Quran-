@@ -14,7 +14,7 @@ const amiri = Amiri({
 });
 
 export const metadata: Metadata = {
-  title: "Repasa - Memorización del Corán",
+  title: "Repaso - Memorización del Corán",
   description: "Aplicación para repasar el Corán usando el método Osmanlı usulü",
   manifest: "/manifest.json",
 };

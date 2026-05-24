@@ -1,6 +1,6 @@
 {
-  "name": "Repasa - Memorización del Corán",
-  "short_name": "Repasa",
+  "name": "Repaso - Memorización del Corán",
+  "short_name": "Repaso",
   "description": "Aplicación para repasar el Corán usando el método Osmanlı usulü",
   "start_url": "/",
   "display": "standalone",
