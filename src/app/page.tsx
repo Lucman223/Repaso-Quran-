@@ -41,7 +41,7 @@ export default function Home() {
       <header className="sticky top-0 z-10 flex items-center justify-between p-5 bg-[var(--color-background)]/90 backdrop-blur border-b border-[var(--color-border)]">
         <div>
           <h1 className="text-3xl font-bold text-[var(--color-primary)] font-amiri tracking-wider">
-            رَاجِع
+            مراجعة
           </h1>
           <p className="text-[10px] font-semibold opacity-50 uppercase tracking-widest mt-0.5">
             Repaso
