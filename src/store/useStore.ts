@@ -9,6 +9,7 @@ interface RepasaState {
   pageCache: Record<number, Verse[]>;
   availableVueltas: number[];
   locale: 'es' | 'tr';
+  hasSeenOnboarding: boolean;
 
   markVueltaCompleted: (juzId: string, vueltaId: number) => void;
   toggleVueltaCompleted: (juzId: string, vueltaId: number) => void;
@@ -18,6 +19,7 @@ interface RepasaState {
   cachePageVerses: (absolutePage: number, verses: Verse[]) => void;
   fetchAvailableVueltas: () => Promise<void>;
   setLocale: (locale: 'es' | 'tr') => void;
+  markOnboardingSeen: () => void;
 }
 
 export const useRepasaStore = create<RepasaState>()(
@@ -29,6 +31,7 @@ export const useRepasaStore = create<RepasaState>()(
       pageCache: {},
       availableVueltas: [1, 2], // Valor inicial por defecto
       locale: 'es' as const,
+      hasSeenOnboarding: false,
 
       markVueltaCompleted: (juzId, vueltaId) => set((state) => {
         const currentJuz = state.completedVueltas[juzId] || [];
@@ -88,6 +91,8 @@ export const useRepasaStore = create<RepasaState>()(
       },
 
       setLocale: (locale) => set({ locale }),
+
+      markOnboardingSeen: () => set({ hasSeenOnboarding: true }),
     }),
     {
       name: 'repaso-storage-v3', // Nombre actualizado de la plataforma
@@ -98,6 +103,7 @@ export const useRepasaStore = create<RepasaState>()(
         pageCache: state.pageCache,
         availableVueltas: state.availableVueltas,
         locale: state.locale,
+        hasSeenOnboarding: state.hasSeenOnboarding,
       }),
     }
   )

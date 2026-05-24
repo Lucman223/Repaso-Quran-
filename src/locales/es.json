@@ -45,5 +45,22 @@
   },
   "lang": {
     "toggle": "TR"
+  },
+  "onboarding": {
+    "skip": "Saltar",
+    "next": "Siguiente",
+    "prev": "Anterior",
+    "start": "¡Empezar!",
+    "viewGuide": "Ver guía",
+    "step1Title": "Bienvenido a مراجعة",
+    "step1Desc": "Tu compañero para memorizar y repasar el Corán usando el método Osmanlı usulü. Cada Juz se repasa una página por vuelta, de la última a la primera.",
+    "step2Title": "Sistema de Vueltas",
+    "step2Desc": "Hay 20 vueltas con 30 Juzs cada una. Empieza por la Vuelta 1 y avanza progresivamente. Las vueltas con imágenes aparecen desbloqueadas automáticamente.",
+    "step3Title": "Escucha por Aleyas",
+    "step3Desc": "Elige entre 3 recitadores: Al-Husary, Minshawi o K.R.H. (tu propia recitación). Pulsa 'Escuchar' en cada aleya para reproducirla individualmente.",
+    "step4Title": "Bucle de Memorización",
+    "step4Desc": "Selecciona un rango de aleyas (desde – hasta) y el número de repeticiones. El reproductor repetirá automáticamente ese rango para ayudarte a memorizar.",
+    "step5Title": "Recita y Repasa",
+    "step5Desc": "Usa el botón del micrófono para activar el reconocimiento de voz. Recita las aleyas y compara tu recitación con el texto original en tiempo real."
   }
 }

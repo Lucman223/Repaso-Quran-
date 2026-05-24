@@ -1,17 +1,21 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { BookOpen, Settings, Lock, Globe } from "lucide-react";
 import { useRepasaStore } from "@/store/useStore";
 import { useTranslation } from "@/hooks/useTranslation";
+import { OnboardingModal } from "@/components/OnboardingModal";
 
 export default function Home() {
   const completedVueltasMap = useRepasaStore((state) => state.completedVueltas);
   const availableVueltas = useRepasaStore((state) => state.availableVueltas);
   const fetchAvailableVueltas = useRepasaStore((state) => state.fetchAvailableVueltas);
   const setLocale = useRepasaStore((state) => state.setLocale);
+  const hasSeenOnboarding = useRepasaStore((state) => state.hasSeenOnboarding);
+  const markOnboardingSeen = useRepasaStore((state) => state.markOnboardingSeen);
   const { t, locale } = useTranslation();
+  const [showGuide, setShowGuide] = useState(false);
 
   useEffect(() => {
     fetchAvailableVueltas();
@@ -60,7 +64,11 @@ export default function Home() {
             <Globe className="w-3.5 h-3.5 opacity-60" />
             {t('lang.toggle')}
           </button>
-          <button className="p-2 rounded-full hover:bg-[var(--color-card)] transition-colors">
+          <button
+            onClick={() => setShowGuide(true)}
+            title={t("onboarding.viewGuide")}
+            className="p-2 rounded-full hover:bg-[var(--color-card)] transition-colors"
+          >
             <Settings className="w-5 h-5 opacity-60" />
           </button>
         </div>
@@ -126,6 +134,15 @@ export default function Home() {
           </div>
         </div>
       </main>
+      {/* Onboarding modal — first launch or via Settings */}
+      {(!hasSeenOnboarding || showGuide) && (
+        <OnboardingModal
+          onClose={() => {
+            markOnboardingSeen();
+            setShowGuide(false);
+          }}
+        />
+      )}
     </div>
   );
 }

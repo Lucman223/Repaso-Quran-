@@ -45,5 +45,22 @@
   },
   "lang": {
     "toggle": "ES"
+  },
+  "onboarding": {
+    "skip": "Geç",
+    "next": "İleri",
+    "prev": "Geri",
+    "start": "Başla!",
+    "viewGuide": "Kılavuzu Gör",
+    "step1Title": "مراجعة'ye Hoş Geldin",
+    "step1Desc": "Osmanlı usulü ile Kur'an ezberleme ve tekrar etme yardımcın. Her Cüz, son sayfadan birincisine doğru tur tur tekrar edilir.",
+    "step2Title": "Tur Sistemi",
+    "step2Desc": "Her birinde 30 Cüz bulunan 20 tur vardır. 1. Turdan başla ve ilerle. Görselleri olan turlar otomatik olarak açılır.",
+    "step3Title": "Ayet Ayet Dinle",
+    "step3Desc": "3 okuyucu arasından seç: Al-Husary, Minshawi veya K.R.H. (kendi sesini). Tek tek dinlemek için 'Dinle' butonuna bas.",
+    "step4Title": "Ezberleme Döngüsü",
+    "step4Desc": "Bir ayet aralığı (başlangıç – bitiş) ve tekrar sayısı seç. Oynatıcı ezberlemenize yardımcı olmak için aralığı otomatik tekrar eder.",
+    "step5Title": "Oku ve Tekrar Et",
+    "step5Desc": "Ses tanıma özelliğini açmak için mikrofon butonuna bas. Ayetleri oku ve metnin orijinaliyle gerçek zamanlı karşılaştır."
   }
 }
