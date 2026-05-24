@@ -1,12 +1,18 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { BookOpen, Settings, Lock } from "lucide-react";
 import { useRepasaStore } from "@/store/useStore";
-import { AVAILABLE_VUELTAS } from "@/lib/quran";
 
 export default function Home() {
   const completedVueltasMap = useRepasaStore((state) => state.completedVueltas);
+  const availableVueltas = useRepasaStore((state) => state.availableVueltas);
+  const fetchAvailableVueltas = useRepasaStore((state) => state.fetchAvailableVueltas);
+
+  useEffect(() => {
+    fetchAvailableVueltas();
+  }, [fetchAvailableVueltas]);
 
   const totalCompleted = Object.values(completedVueltasMap).reduce(
     (sum, vueltas) => sum + vueltas.length,
@@ -20,7 +26,7 @@ export default function Home() {
     const completedJuzs = Object.keys(completedVueltasMap).filter(
       (juzId) => (completedVueltasMap[juzId] || []).includes(vueltaNum)
     ).length;
-    const isAvailable = AVAILABLE_VUELTAS.includes(vueltaNum);
+    const isAvailable = availableVueltas.includes(vueltaNum);
     const progress = Math.round((completedJuzs / 30) * 100);
     return {
       vueltaNum,

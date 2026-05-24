@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, Circle } from "lucide-react";
 import { useRepasaStore } from "@/store/useStore";
@@ -14,6 +14,11 @@ export default function VueltaPage({
   const vId = parseInt(vueltaId);
 
   const completedVueltasMap = useRepasaStore((state) => state.completedVueltas);
+  const fetchAvailableVueltas = useRepasaStore((state) => state.fetchAvailableVueltas);
+
+  useEffect(() => {
+    fetchAvailableVueltas();
+  }, [fetchAvailableVueltas]);
 
   // Generar los 30 Juzs
   const juzs = Array.from({ length: 30 }, (_, i) => {

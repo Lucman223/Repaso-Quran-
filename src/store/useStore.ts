@@ -7,6 +7,7 @@ interface RepasaState {
   pageStats: Record<string, { listenCount: number; recordCount: number }>;
   reciter: Reciter;
   pageCache: Record<number, Verse[]>;
+  availableVueltas: number[];
 
   markVueltaCompleted: (juzId: string, vueltaId: number) => void;
   toggleVueltaCompleted: (juzId: string, vueltaId: number) => void;
@@ -14,15 +15,17 @@ interface RepasaState {
   incrementRecord: (pageKey: string) => void;
   setReciter: (reciter: Reciter) => void;
   cachePageVerses: (absolutePage: number, verses: Verse[]) => void;
+  fetchAvailableVueltas: () => Promise<void>;
 }
 
 export const useRepasaStore = create<RepasaState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       completedVueltas: {},
       pageStats: {},
       reciter: 'husary',
       pageCache: {},
+      availableVueltas: [1, 2], // Valor inicial por defecto
 
       markVueltaCompleted: (juzId, vueltaId) => set((state) => {
         const currentJuz = state.completedVueltas[juzId] || [];
@@ -66,14 +69,29 @@ export const useRepasaStore = create<RepasaState>()(
       cachePageVerses: (absolutePage, verses) => set((state) => ({
         pageCache: { ...state.pageCache, [absolutePage]: verses },
       })),
+
+      fetchAvailableVueltas: async () => {
+        try {
+          const res = await fetch('/api/vueltas');
+          if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data) && data.length > 0) {
+              set({ availableVueltas: data });
+            }
+          }
+        } catch (e) {
+          console.error("Error al obtener las vueltas desde la API:", e);
+        }
+      },
     }),
     {
-      name: 'repasa-storage-v2',
+      name: 'repasa-storage-v3', // Cambiamos la versión de almacenamiento para evitar inconsistencias
       partialize: (state) => ({
         completedVueltas: state.completedVueltas,
         pageStats: state.pageStats,
         reciter: state.reciter,
         pageCache: state.pageCache,
+        availableVueltas: state.availableVueltas,
       }),
     }
   )

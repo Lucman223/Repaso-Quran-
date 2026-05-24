@@ -60,8 +60,9 @@ export default function PaginaQuran({
   const [loading, setLoading] = useState(verses.length === 0);
   const [fetchError, setFetchError] = useState(false);
 
-  // KRH Timestamps
-  const [krhTimestamps, setKrhTimestamps] = useState<Record<string, { start: number; end: number }> | null>(null);
+  // Disponibilidad de audios individuales para KRH
+  const [krhAudiosAvailable, setKrhAudiosAvailable] = useState<boolean>(false);
+  const [checkingKrhAudios, setCheckingKrhAudios] = useState<boolean>(false);
 
   // Audio refs
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -98,7 +99,7 @@ export default function PaginaQuran({
     repeatMode,
     verses,
     reciter,
-    krhTimestamps
+    krhAudiosAvailable
   });
 
   useEffect(() => {
@@ -112,24 +113,32 @@ export default function PaginaQuran({
       repeatMode,
       verses,
       reciter,
-      krhTimestamps
+      krhAudiosAvailable
     };
   });
 
-  // Fetch KRH timestamps if available
+  // Verificar si los audios individuales de KRH están listos haciendo una petición HEAD a la primera aleya
   useEffect(() => {
-    fetch(`/Coran/${vueltaId}V/KRH/P${localPageNumber}.json`)
+    if (verses.length === 0) {
+      setKrhAudiosAvailable(false);
+      return;
+    }
+
+    setCheckingKrhAudios(true);
+    const firstVerseKey = verses[0].verse_key;
+    const url = getAyahAudioUrl(firstVerseKey, 'krh', vueltaId);
+
+    fetch(url, { method: "HEAD" })
       .then((res) => {
-        if (res.ok) return res.json();
-        throw new Error("No hay marcas de tiempo locales");
-      })
-      .then((data) => {
-        setKrhTimestamps(data);
+        setKrhAudiosAvailable(res.ok);
       })
       .catch(() => {
-        setKrhTimestamps(null);
+        setKrhAudiosAvailable(false);
+      })
+      .finally(() => {
+        setCheckingKrhAudios(false);
       });
-  }, [vueltaId, localPageNumber]);
+  }, [verses, vueltaId]);
 
   // Fetch verses on mount
   useEffect(() => {
@@ -180,10 +189,7 @@ export default function PaginaQuran({
 
   // Audio helpers
   const playVerse = (verseKey: string) => {
-    const isKrhWithTimestamps = reciter === 'krh' && krhTimestamps && krhTimestamps[verseKey];
-    const url = isKrhWithTimestamps 
-      ? `/Coran/${vueltaId}V/KRH/P${localPageNumber}.mp4`
-      : getAyahAudioUrl(verseKey, reciter);
+    const url = getAyahAudioUrl(verseKey, reciter, vueltaId);
 
     if (globalAudioRef.current) {
       globalAudioRef.current.pause();
@@ -213,16 +219,6 @@ export default function PaginaQuran({
             }
           }
         } else if (state.repeatMode) {
-          const localState = stateRef.current;
-          if (localState.reciter === 'krh' && localState.krhTimestamps && localState.playingKey) {
-            const segment = localState.krhTimestamps[localState.playingKey];
-            if (segment && audioRef.current) {
-              audioRef.current.currentTime = segment.start;
-              audioRef.current.play().catch(() => setAudioLoading(false));
-              setIsPlaying(true);
-              return;
-            }
-          }
           audioRef.current?.play();
           setIsPlaying(true);
         }
@@ -232,20 +228,8 @@ export default function PaginaQuran({
       audioRef.current.onwaiting = () => setAudioLoading(true);
       audioRef.current.oncanplay = () => setAudioLoading(false);
 
-      // Control de tiempo para KRH por segmentos
-      audioRef.current.ontimeupdate = () => {
-        const state = stateRef.current;
-        if (state.reciter === 'krh' && state.krhTimestamps && state.playingKey) {
-          const segment = state.krhTimestamps[state.playingKey];
-          if (segment && audioRef.current) {
-            if (audioRef.current.currentTime >= segment.end) {
-              audioRef.current.pause();
-              setIsPlaying(false);
-              audioRef.current.onended?.(new Event('ended'));
-            }
-          }
-        }
-      };
+      // Control de tiempo vacío (ya no es necesario recortar por software)
+      audioRef.current.ontimeupdate = null;
     }
 
     if (playingKey === verseKey && isPlaying) {
@@ -258,9 +242,6 @@ export default function PaginaQuran({
     const targetSrc = new URL(url, window.location.origin).pathname;
 
     const startPlay = () => {
-      if (isKrhWithTimestamps && audioRef.current) {
-        audioRef.current.currentTime = krhTimestamps[verseKey].start;
-      }
       audioRef.current?.play().catch(() => setAudioLoading(false));
     };
 
@@ -269,17 +250,7 @@ export default function PaginaQuran({
 
     if (currentSrc !== targetSrc) {
       audioRef.current.src = url;
-      if (isKrhWithTimestamps) {
-        audioRef.current.onloadedmetadata = () => {
-          if (audioRef.current) {
-            audioRef.current.currentTime = krhTimestamps[verseKey].start;
-            audioRef.current.play().catch(() => setAudioLoading(false));
-            audioRef.current.onloadedmetadata = null;
-          }
-        };
-      } else {
-        audioRef.current.play().catch(() => setAudioLoading(false));
-      }
+      audioRef.current.play().catch(() => setAudioLoading(false));
     } else {
       startPlay();
     }
@@ -539,7 +510,7 @@ export default function PaginaQuran({
                     </p>
 
                     {/* Play button */}
-                    {(reciter !== 'krh' || (reciter === 'krh' && krhTimestamps?.[verse.verse_key])) && (
+                    {(reciter !== 'krh' || (reciter === 'krh' && krhAudiosAvailable)) && (
                       <div className="flex justify-end mt-2">
                         <button
                           onClick={() => playVerse(verse.verse_key)}
@@ -601,8 +572,13 @@ export default function PaginaQuran({
                 }
               }}
             />
-            <p className="text-[10px] text-center opacity-50 mt-1">
-              Esperando archivo local: <code className="bg-[var(--color-card)] p-0.5 rounded border border-[var(--color-border)]">public/Coran/{vueltaId}V/KRH/P{localPageNumber}.mp4</code>
+            <p className="text-[10px] text-center opacity-50 mt-1 flex flex-col gap-1 items-center">
+              <span>Reproducción de página completa. Archivo: <code className="bg-[var(--color-card)] p-0.5 rounded border border-[var(--color-border)]">public/Coran/{vueltaId}V/KRH/P{localPageNumber}.mp4</code></span>
+              {reciter === 'krh' && !krhAudiosAvailable && (
+                <span className="text-[10px] text-[var(--color-gold)] font-medium">
+                  ⚠️ Reproducción por aleyas no disponible para esta página. Ejecuta el script de troceado.
+                </span>
+              )}
             </p>
           </div>
         )}

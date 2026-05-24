@@ -21,7 +21,11 @@ export const JUZ_STARTING_PAGES = [
 
 export const AVAILABLE_VUELTAS = [1, 2];
 
-export function getAyahAudioUrl(verseKey: string, reciter: Reciter = 'minshawi'): string {
+export function getAyahAudioUrl(
+  verseKey: string, 
+  reciter: Reciter = 'minshawi', 
+  vueltaId?: string | number
+): string {
   // verseKey viene como "1:1" -> necesitamos "001001"
   const [sura, ayah] = verseKey.split(':');
   const suraPad = sura.padStart(3, '0');
@@ -29,9 +33,9 @@ export function getAyahAudioUrl(verseKey: string, reciter: Reciter = 'minshawi')
   const file = `${suraPad}${ayahPad}`;
 
   if (reciter === 'krh') {
-    // Cuando el usuario tenga las aleyas troceadas, se guardarán aquí:
-    // (Ajustaremos la ruta si es necesario, de momento asumimos que van a /Coran/Audios/KRH/)
-    return `/Coran/Audios/KRH/${file}.mp3`;
+    // Si no se provee vueltaId, por defecto asumimos Vuelta 1
+    const v = vueltaId ?? 1;
+    return `/Coran/${v}V/KRH/Audios/${file}.mp3`;
   }
   if (reciter === 'husary') {
     return `https://everyayah.com/data/Husary_128kbps/${file}.mp3`;
