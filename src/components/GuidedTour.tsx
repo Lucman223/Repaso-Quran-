@@ -79,19 +79,52 @@ export function GuidedTour({ steps, run, onFinish, locale }: TourProps) {
         transform: "translate(-50%, -50%)",
         zIndex: 10001,
         width: "min(90vw, 340px)",
+        maxHeight: "90vh",
+        overflowY: "auto",
       };
     }
     const vw = window.innerWidth;
-    const left = Math.max(8, Math.min(targetRect.left, vw - 356));
+    const vh = window.innerHeight;
+    
+    const tooltipWidth = Math.min(vw * 0.9, 340);
+    const estimatedHeight = 220; // Estimación más conservadora
+
+    let left = targetRect.left;
+    if (left + tooltipWidth > vw - PADDING) {
+      left = vw - tooltipWidth - PADDING;
+    }
+    if (left < PADDING) {
+      left = PADDING;
+    }
+
     const below = targetRect.top + targetRect.height + PADDING;
-    const above = targetRect.top - PADDING - 180; // rough height
-    const top = above > 60 ? above : below;
+    const above = targetRect.top - PADDING - estimatedHeight;
+    
+    let top = above > 60 ? above : below;
+
+    // Evitar que se salga por abajo
+    if (top + estimatedHeight > vh - PADDING) {
+      if (above > PADDING) {
+        top = above; // Preferimos arriba si cabe
+      } else {
+        // Si no cabe ni arriba ni abajo, lo anclamos al fondo visible
+        top = vh - estimatedHeight - PADDING;
+      }
+    }
+    
+    // Evitar que se salga por arriba
+    if (top < PADDING) {
+      top = PADDING;
+    }
+
     return {
       position: "fixed",
       top,
       left,
       zIndex: 10001,
-      width: "min(90vw, 340px)",
+      width: `${tooltipWidth}px`,
+      maxHeight: "90vh",
+      overflowY: "auto",
     };
   };
 
