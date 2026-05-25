@@ -24,10 +24,7 @@ import {
   type Verse,
 } from "@/lib/quran";
 import { useTranslation } from "@/hooks/useTranslation";
-import dynamic from "next/dynamic";
-import { Step } from "react-joyride";
-
-const Joyride = dynamic(() => import("react-joyride"), { ssr: false });
+import { GuidedTour, type TourStep } from "@/components/GuidedTour";
 
 export default function PaginaQuran({
   params,
@@ -70,31 +67,48 @@ export default function PaginaQuran({
     setIsMounted(true);
   }, []);
 
-  const steps: Step[] = [
+  const steps: TourStep[] = [
     {
       target: "#tour-reciters",
-      title: t("onboarding.step3Title"),
-      content: t("onboarding.step3Desc"),
-      disableBeacon: true,
+      title: t("tour.juz.reciterTitle"),
+      content: t("tour.juz.reciterDesc"),
+    },
+    {
+      target: "#tour-reciters",
+      title: t("tour.juz.modeTitle"),
+      content: t("tour.juz.modeDesc"),
+    },
+    {
+      target: "#tour-repeat",
+      title: t("tour.juz.repeatTitle"),
+      content: t("tour.juz.repeatDesc"),
     },
     {
       target: "#tour-loop",
-      title: t("onboarding.step4Title"),
-      content: t("onboarding.step4Desc"),
+      title: t("tour.juz.loopTitle"),
+      content: t("tour.juz.loopDesc"),
+    },
+    {
+      target: "#tour-verse-list",
+      title: t("tour.juz.versesTitle"),
+      content: t("tour.juz.versesDesc"),
+    },
+    {
+      target: "#tour-stats-row",
+      title: t("tour.juz.statsTitle"),
+      content: t("tour.juz.statsDesc"),
     },
     {
       target: "#tour-mic",
-      title: t("onboarding.step5Title"),
-      content: t("onboarding.step5Desc"),
-    }
+      title: t("tour.juz.micTitle"),
+      content: t("tour.juz.micDesc"),
+    },
+    {
+      target: "#tour-mark-complete",
+      title: t("tour.juz.completeTitle"),
+      content: t("tour.juz.completeDesc"),
+    },
   ];
-
-  const handleJoyrideCallback = (data: any) => {
-    const { status } = data;
-    if (["finished", "skipped"].includes(status)) {
-      markJuzTourSeen();
-    }
-  };
 
   // Verses
   const [verses, setVerses] = useState<Verse[]>(pageCache[absolutePage] ?? []);
@@ -412,7 +426,8 @@ export default function PaginaQuran({
               {RECITERS[r].nameEs}
             </button>
           ))}
-          <button
+          <button 
+            id="tour-repeat"
             onClick={() => setRepeatMode((v) => !v)}
             title={t('juz.repeatVerse')}
             className={`ml-auto p-1.5 rounded-full transition-all ${
@@ -536,7 +551,7 @@ export default function PaginaQuran({
               </div>
             )}
 
-            <div className="divide-y divide-[var(--color-border)] border-t border-[var(--color-border)]">
+            <div id="tour-verse-list" className="divide-y divide-[var(--color-border)] border-t border-[var(--color-border)]">
               {verses.map((verse) => {
                 const isThisPlaying = playingKey === verse.verse_key && isPlaying;
                 const isThisLoading = playingKey === verse.verse_key && audioLoading;
@@ -637,7 +652,7 @@ export default function PaginaQuran({
         )}
 
         {/* Stats row */}
-        <div className="flex justify-center gap-6 mb-3 text-xs opacity-50">
+        <div id="tour-stats-row" className="flex justify-center gap-6 mb-3 text-xs opacity-50">
           <span>🎧 {currentStats.listenCount} {t('juz.listens')}</span>
           <span>🎤 {currentStats.recordCount} {t('juz.recitations')}</span>
         </div>
@@ -662,6 +677,7 @@ export default function PaginaQuran({
 
           {/* Mark completed button */}
           <button
+            id="tour-mark-complete"
             onClick={() => toggleVueltaCompleted(id, vueltaId)}
             className={`flex-1 py-3 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2 ${
               isVueltaCompleted
@@ -722,24 +738,12 @@ export default function PaginaQuran({
       )}
 
       {isMounted && (
-        <Joyride
+        <GuidedTour
           steps={steps}
           run={!hasSeenJuzTour}
-          continuous
-          scrollToFirstStep
-          showProgress
-          showSkipButton
-          disableOverlayClose
-          callback={handleJoyrideCallback}
-          styles={{
-            options: {
-              primaryColor: 'var(--color-primary)',
-              zIndex: 1000,
-            },
-          }}
+          onFinish={markJuzTourSeen}
           locale={{
             back: t('onboarding.tourBack'),
-            close: t('onboarding.tourClose'),
             last: t('onboarding.tourLast'),
             next: t('onboarding.tourNext'),
             skip: t('onboarding.tourSkip'),

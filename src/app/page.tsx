@@ -5,10 +5,7 @@ import Link from "next/link";
 import { BookOpen, Settings, Lock, Globe, BarChart2 } from "lucide-react";
 import { useRepasaStore } from "@/store/useStore";
 import { useTranslation } from "@/hooks/useTranslation";
-import dynamic from "next/dynamic";
-import { Step } from "react-joyride";
-
-const Joyride = dynamic(() => import("react-joyride"), { ssr: false });
+import { GuidedTour, type TourStep } from "@/components/GuidedTour";
 
 export default function Home() {
   const completedVueltasMap = useRepasaStore((state) => state.completedVueltas);
@@ -28,33 +25,38 @@ export default function Home() {
     fetchAvailableVueltas();
   }, [fetchAvailableVueltas]);
 
-  const steps: Step[] = [
+  const steps: TourStep[] = [
     {
       target: "body",
-      placement: "center",
       title: t("onboarding.step1Title"),
       content: t("onboarding.step1Desc"),
-      disableBeacon: true,
     },
     {
       target: "#tour-progress",
-      title: t("onboarding.step2Title"),
-      content: "Aquí puedes ver tu progreso total a través de las 20 vueltas.",
+      title: t("tour.home.progressTitle"),
+      content: t("tour.home.progressDesc"),
     },
     {
       target: "#tour-vueltas",
-      title: t("onboarding.step2Title"),
-      content: t("onboarding.step2Desc"),
-    }
+      title: t("tour.home.vueltasTitle"),
+      content: t("tour.home.vueltasDesc"),
+    },
+    {
+      target: "#tour-lang",
+      title: t("tour.home.langTitle"),
+      content: t("tour.home.langDesc"),
+    },
+    {
+      target: "#tour-stats-btn",
+      title: t("tour.home.statsTitle"),
+      content: t("tour.home.statsDesc"),
+    },
+    {
+      target: "#tour-guide-btn",
+      title: t("tour.home.guideTitle"),
+      content: t("tour.home.guideDesc"),
+    },
   ];
-
-  const handleJoyrideCallback = (data: any) => {
-    const { status } = data;
-    if (["finished", "skipped"].includes(status)) {
-      markHomeTourSeen();
-      setShowGuide(false);
-    }
-  };
 
   const totalCompleted = Object.values(completedVueltasMap).reduce(
     (sum, vueltas) => sum + vueltas.length,
@@ -92,6 +94,7 @@ export default function Home() {
         <div className="flex items-center gap-2">
           {/* Selector de idioma */}
           <button
+            id="tour-lang"
             onClick={() => setLocale(locale === 'es' ? 'tr' : 'es')}
             title={locale === 'es' ? 'Cambiar a Türkçe' : "Español'a geç"}
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-bold border border-[var(--color-border)] hover:border-[var(--color-primary)] hover:bg-[var(--color-card)] transition-all"
@@ -100,6 +103,7 @@ export default function Home() {
             {t('lang.toggle')}
           </button>
           <Link
+            id="tour-stats-btn"
             href="/stats"
             title="Estadísticas"
             className="p-2 rounded-full hover:bg-[var(--color-card)] transition-colors"
@@ -107,6 +111,7 @@ export default function Home() {
             <BarChart2 className="w-5 h-5 opacity-60" />
           </Link>
           <button
+            id="tour-guide-btn"
             onClick={() => {
               resetTours();
               setShowGuide(true);
@@ -181,24 +186,15 @@ export default function Home() {
       </main>
 
       {isMounted && (
-        <Joyride
+        <GuidedTour
           steps={steps}
           run={!hasSeenHomeTour || showGuide}
-          continuous
-          scrollToFirstStep
-          showProgress
-          showSkipButton
-          disableOverlayClose
-          callback={handleJoyrideCallback}
-          styles={{
-            options: {
-              primaryColor: 'var(--color-primary)',
-              zIndex: 1000,
-            },
+          onFinish={() => {
+            markHomeTourSeen();
+            setShowGuide(false);
           }}
           locale={{
             back: t('onboarding.tourBack'),
-            close: t('onboarding.tourClose'),
             last: t('onboarding.tourLast'),
             next: t('onboarding.tourNext'),
             skip: t('onboarding.tourSkip'),

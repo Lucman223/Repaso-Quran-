@@ -80,5 +80,37 @@
     "total": "Toplam dinleme",
     "reciter": "Okuyucu",
     "back": "Geri dön"
+  },
+  "tour": {
+    "home": {
+      "progressTitle": "Genel ilerlemeniz",
+      "progressDesc": "Bu panel, 20 tur × 30 cüz toplamı üzerinde tamamlanan sayfa yüzdesini gösterir. Bir sayfayı tamamlandı olarak işaretlediğinizde otomatik güncellenir.",
+      "vueltasTitle": "20 Tur",
+      "vueltasDesc": "Her kart bir Turdur. Açık turlar (görseli olanlar) seçilebilir. İçinde o güne ait sayfa ile birlikte 30 Cüz bulacaksınız.",
+      "langTitle": "Dil değiştirme",
+      "langDesc": "Türkçe ve İspanyolca arasında geçiş yapabilirsiniz. Bu tutorial dahil tüm metinler anında değişir.",
+      "statsTitle": "Ayrıntılı istatistikler",
+      "statsDesc": "Tüm dinleme geçmişinize erişin: her sayfayı veya ayeti kaç kez, hangi okuyucuyla dinlediğinizi ve toplam birikimi görün.",
+      "guideTitle": "Tutoryalı gör",
+      "guideDesc": "Bu tutoryalı baştan sona tekrar izlemek istediğinizde istediğiniz zaman buraya basın."
+    },
+    "juz": {
+      "reciterTitle": "Okuyucu seçin",
+      "reciterDesc": "Al-Husary, Minshawi veya K.R.H. (kendi kaydınız) arasından seçin. Okuyucu değiştiğinde ses sıfırlanır. K.R.H. tüm sayfayı tek seferde çalar.",
+      "modeTitle": "Görsel / Metin görünümü",
+      "modeDesc": "Mushaf sayfasını görsel olarak mı yoksa etkileşimli Arapça metin olarak mı görmek istediğinizi seçin. Metin modunda ayet ayet dinleyebilirsiniz.",
+      "repeatTitle": "Tekrar modu",
+      "repeatDesc": "Bu butonu etkinleştirerek son çalınan ayeti sınırsız sayıda döngüel olarak tekrar edebilirsiniz. Belirli bir ayeti ezberlemek için idealdir.",
+      "loopTitle": "Ezberleme döngüsü",
+      "loopDesc": "Bir ayet aralığı (Başlangıç – Bitiş) ve tekrar sayısı belirleyin. Oynatıcı ayetleri ard arda otomatik olarak o kadar kez okur.",
+      "versesTitle": "Ayet listesi",
+      "versesDesc": "Her ayetin 'Dinle' butonu vardır. Ses bitince uygulama dikkatle dinleyip dinlemediğinizi sorar ve istatistiklerinize kaydeder.",
+      "statsTitle": "Oturum sayıcısı",
+      "statsDesc": "Geçerli sayfa için onaylanan dinlemeler ve kaydedilen okumalar burada gösterilir.",
+      "micTitle": "Mikrofonla okuma",
+      "micDesc": "Arapça ses tanımayı etkinleştirmek için mikrofona basın. Ayetleri okuyun; metin ekranda belirir ve orijinaliyle karşılaştırabilirsiniz.",
+      "completeTitle": "Sayfayı tamamlandı olarak işaretle",
+      "completeDesc": "Sayfayı tekrar ettiğinizde bu Tur için tamamlandı olarak işaretlemek için buraya basın. Aynı butona tekrar basarak işareti kaldırabilirsiniz."
+    }
   }
 }

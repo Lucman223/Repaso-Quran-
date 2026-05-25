@@ -80,5 +80,37 @@
     "total": "Total de escuchas",
     "reciter": "Recitador",
     "back": "Volver"
+  },
+  "tour": {
+    "home": {
+      "progressTitle": "Tu progreso global",
+      "progressDesc": "Este panel muestra el porcentaje de páginas completadas sobre el total de las 20 vueltas × 30 Juzs. Se actualiza cada vez que marcas una página como completada.",
+      "vueltasTitle": "Las 20 Vueltas",
+      "vueltasDesc": "Cada tarjeta es una Vuelta. Las vueltas desbloqueadas (con imagen) se pueden seleccionar. Dentro encontrarás los 30 Juzs con su página correspondiente para ese día.",
+      "langTitle": "Cambio de idioma",
+      "langDesc": "Alterna entre Español y Türco. Todos los textos de la app, incluido este tutorial, cambiarán de idioma instantáneamente.",
+      "statsTitle": "Estadísticas detalladas",
+      "statsDesc": "Accede a tu historial completo de escuchas: cuántas veces has oído cada página o aleya, con qué recitador y el total acumulado.",
+      "guideTitle": "Ver el tutorial",
+      "guideDesc": "Pulsa aquí en cualquier momento para volver a ver este tutorial completo desde el principio."
+    },
+    "juz": {
+      "reciterTitle": "Elige el recitador",
+      "reciterDesc": "Selecciona entre Al-Husary, Minshawi o K.R.H. (tu propia grabación). Al cambiar de recitador el audio se reinicia. K.R.H. reproduce el audio completo de la página.",
+      "modeTitle": "Vista Imagen / Texto",
+      "modeDesc": "Cambia entre ver la página del Mushaf como imagen o como texto árabe interactivo. En modo Texto puedes escuchar aleya por aleya.",
+      "repeatTitle": "Modo de Repetición",
+      "repeatDesc": "Activa este botón para repetir en bucle continuo la última aleya reproducida, sin límite de veces. Útil para memorizar una aleya específica.",
+      "loopTitle": "Bucle de Memorización",
+      "loopDesc": "Configura un rango de aleyas (Desde – Hasta) y un número de repeticiones. El reproductor las recitará automáticamente ese número de veces seguidas.",
+      "versesTitle": "Lista de Aleyas",
+      "versesDesc": "Cada aleya tiene un botón 'Escuchar'. Al terminar el audio, la app te preguntará si has escuchado atentamente para registrar la escucha en tus estadísticas.",
+      "statsTitle": "Contador de sesión",
+      "statsDesc": "Aquí se muestran las escuchas confirmadas y las recitaciones grabadas en esta sesión para la página actual.",
+      "micTitle": "Recitar con el micrófono",
+      "micDesc": "Pulsa el micrófono para activar el reconocimiento de voz en árabe. Recita las aleyas y el texto aparecerá en pantalla para que puedas compararlo con el original.",
+      "completeTitle": "Marcar página completada",
+      "completeDesc": "Cuando hayas repasado la página, pulsa aquí para marcarla como completada en esta Vuelta. El botón actuará como interruptor: también puedes desmarcarla si es necesario."
+    }
   }
 }
