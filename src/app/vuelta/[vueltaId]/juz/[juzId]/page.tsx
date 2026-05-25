@@ -47,6 +47,7 @@ export default function PaginaQuran({
     reciter,
     completedVueltas,
     incrementListen,
+    incrementListenDetailed,
     incrementRecord,
     toggleVueltaCompleted,
     setReciter,
@@ -89,6 +90,13 @@ export default function PaginaQuran({
   const [loopCount, setLoopCount] = useState<number>(3);
   const [currentLoopIteration, setCurrentLoopIteration] = useState<number>(0);
   const [isLoopActive, setIsLoopActive] = useState(false);
+
+  // Confirmación de escucha
+  const [confirmPopup, setConfirmPopup] = useState<{
+    targetId: string;
+    type: 'page' | 'ayah';
+    reciter: string;
+  } | null>(null);
 
   // Prevención de Stale Closures en eventos de audio
   const stateRef = useRef({
@@ -223,6 +231,13 @@ export default function PaginaQuran({
         } else if (state.repeatMode) {
           audioRef.current?.play();
           setIsPlaying(true);
+        } else if (state.playingKey) {
+          // Si no hay bucle ni repeatMode, lanzamos la confirmación
+          setConfirmPopup({
+            targetId: state.playingKey,
+            type: 'ayah',
+            reciter: state.reciter
+          });
         }
       };
       audioRef.current.onpause = () => setIsPlaying(false);
@@ -256,8 +271,8 @@ export default function PaginaQuran({
     } else {
       startPlay();
     }
-
-    incrementListen(pageKey);
+    
+    // Ya no hacemos incrementListen automático aquí.
   };
 
   const toggleRecord = () => {
@@ -412,17 +427,13 @@ export default function PaginaQuran({
                     const errorMsg = document.createElement('div');
                     errorMsg.className = 'absolute inset-0 flex flex-col items-center justify-center text-sm p-6 text-center text-[var(--color-primary)] font-medium gap-2 bg-[var(--color-card)]';
                     errorMsg.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-50 mb-2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-                    <span>Falta tu imagen local.</span>
-                    <span class="text-xs opacity-70">Asegúrate de subir la captura en:<br/><b>public/Coran/${vueltaId}V/P${localPageNumber}.png</b></span>`;
+                    <span>Falta tu imagen local.</span>`;
                     parent.appendChild(errorMsg);
                   }
                 }}
               />
             </div>
-            <p className="opacity-50 text-xs text-center p-2 border-t border-[var(--color-border)] bg-black/5 font-medium text-[var(--color-gold)]">
-              (Archivos de tu propia carpeta V{vueltaId} - Archivo: P{localPageNumber}.png)
-            </p>
-          </div>
+          </div>      </div>
         ) : (
           <div className="flex flex-col">
             {/* A-B Repeat UI */}
@@ -573,9 +584,11 @@ export default function PaginaQuran({
                   audioRef.current.pause();
                 }
               }}
+              onEnded={() => {
+                setConfirmPopup({ targetId: pageKey, type: 'page', reciter: 'krh' });
+              }}
             />
             <p className="text-[10px] text-center opacity-50 mt-1 flex flex-col gap-1 items-center">
-              <span>Reproducción de página completa. Archivo: <code className="bg-[var(--color-card)] p-0.5 rounded border border-[var(--color-border)]">public/Coran/{vueltaId}V/KRH/P{localPageNumber}.mp4</code></span>
               {reciter === 'krh' && !krhAudiosAvailable && (
                 <span className="text-[10px] text-[var(--color-gold)] font-medium">
                   {t('juz.audioNotReady')}
@@ -628,6 +641,46 @@ export default function PaginaQuran({
           </button>
         </div>
       </section>
+
+      {/* Modal de confirmación de escucha */}
+      {confirmPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-2xl p-6 shadow-xl max-w-sm w-full text-center">
+            <h3 className="text-lg font-bold mb-2 text-[var(--color-primary)]">{t('juz.confirmListenTitle')}</h3>
+            <p className="text-sm opacity-70 mb-6">{t('juz.confirmListenDesc')}</p>
+            <div className="flex gap-3">
+              <button 
+                onClick={() => {
+                  const target = confirmPopup.targetId;
+                  const type = confirmPopup.type;
+                  setConfirmPopup(null);
+                  if (type === 'ayah') {
+                     playVerse(target);
+                  } else {
+                     if (globalAudioRef.current) {
+                       globalAudioRef.current.currentTime = 0;
+                       globalAudioRef.current.play();
+                     }
+                  }
+                }}
+                className="flex-1 py-3 rounded-xl border border-[var(--color-border)] font-semibold text-sm hover:bg-[var(--color-background)] active:scale-95 transition-all"
+              >
+                {t('juz.confirmListenNo')}
+              </button>
+              <button 
+                onClick={() => {
+                  incrementListenDetailed(confirmPopup.targetId, confirmPopup.type, confirmPopup.reciter);
+                  incrementListen(pageKey); // Para mantener retrocompatibilidad de estadísticas totales
+                  setConfirmPopup(null);
+                }}
+                className="flex-1 py-3 rounded-xl bg-[var(--color-primary)] text-white font-bold text-sm shadow-md active:scale-95 transition-all"
+              >
+                {t('juz.confirmListenYes')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

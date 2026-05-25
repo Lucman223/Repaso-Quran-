@@ -41,7 +41,11 @@
     "audioNotReady": "⚠️ Bu sayfa için ayet bazlı oynatma mevcut değil. Bölme betiğini çalıştır.",
     "fullPageAudio": "Tam sayfa oynatma. Dosya:",
     "missingImage": "Yerel görsel eksik.",
-    "missingImageHint": "Lütfen görseli şuraya yükle:"
+    "missingImageHint": "Lütfen görseli şuraya yükle:",
+    "confirmListenTitle": "Dikkatle dinlediniz mi?",
+    "confirmListenDesc": "İstatistiklerinizi kaydetmek için onaylayın veya sesi tekrar dinlemek için hayır'ı seçin.",
+    "confirmListenYes": "Evet, kaydet",
+    "confirmListenNo": "Hayır, tekrarla"
   },
   "lang": {
     "toggle": "ES"
@@ -62,5 +66,14 @@
     "step4Desc": "Bir ayet aralığı (başlangıç – bitiş) ve tekrar sayısı seç. Oynatıcı ezberlemenize yardımcı olmak için aralığı otomatik tekrar eder.",
     "step5Title": "Oku ve Tekrar Et",
     "step5Desc": "Ses tanıma özelliğini açmak için mikrofon butonuna bas. Ayetleri oku ve metnin orijinaliyle gerçek zamanlı karşılaştır."
+  },
+  "stats": {
+    "title": "Ayrıntılı İstatistikler",
+    "byPage": "Sayfaya Göre",
+    "byAyah": "Ayete Göre",
+    "empty": "Henüz dinleme kaydı yok. İstatistiklerinizi burada görmek için dinlemeye başlayın!",
+    "total": "Toplam dinleme",
+    "reciter": "Okuyucu",
+    "back": "Geri dön"
   }
 }

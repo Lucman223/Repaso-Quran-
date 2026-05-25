@@ -41,7 +41,11 @@
     "audioNotReady": "⚠️ Reproducción por aleyas no disponible para esta página. Ejecuta el script de troceado.",
     "fullPageAudio": "Reproducción de página completa. Archivo:",
     "missingImage": "Falta tu imagen local.",
-    "missingImageHint": "Asegúrate de subir la captura en:"
+    "missingImageHint": "Asegúrate de subir la captura en:",
+    "confirmListenTitle": "¿Escuchaste atentamente?",
+    "confirmListenDesc": "Confirma para registrar tu progreso en las estadísticas, o elige no para repetir el audio.",
+    "confirmListenYes": "Sí, registrar",
+    "confirmListenNo": "No, repetir"
   },
   "lang": {
     "toggle": "TR"
@@ -62,5 +66,14 @@
     "step4Desc": "Selecciona un rango de aleyas (desde – hasta) y el número de repeticiones. El reproductor repetirá automáticamente ese rango para ayudarte a memorizar.",
     "step5Title": "Recita y Repasa",
     "step5Desc": "Usa el botón del micrófono para activar el reconocimiento de voz. Recita las aleyas y compara tu recitación con el texto original en tiempo real."
+  },
+  "stats": {
+    "title": "Estadísticas Detalladas",
+    "byPage": "Por Página",
+    "byAyah": "Por Aleya",
+    "empty": "Aún no hay registros de escuchas. ¡Empieza a escuchar para ver tus estadísticas aquí!",
+    "total": "Total de escuchas",
+    "reciter": "Recitador",
+    "back": "Volver"
   }
 }

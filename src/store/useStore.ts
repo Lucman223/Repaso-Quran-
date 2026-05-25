@@ -5,6 +5,7 @@ import type { Reciter, Verse } from '@/lib/quran';
 interface RepasaState {
   completedVueltas: Record<string, number[]>;
   pageStats: Record<string, { listenCount: number; recordCount: number }>;
+  listenStats: Record<string, { type: 'page' | 'ayah'; counts: Record<string, number> }>;
   reciter: Reciter;
   pageCache: Record<number, Verse[]>;
   availableVueltas: number[];
@@ -14,6 +15,7 @@ interface RepasaState {
   markVueltaCompleted: (juzId: string, vueltaId: number) => void;
   toggleVueltaCompleted: (juzId: string, vueltaId: number) => void;
   incrementListen: (pageKey: string) => void;
+  incrementListenDetailed: (targetId: string, type: 'page' | 'ayah', reciter: string) => void;
   incrementRecord: (pageKey: string) => void;
   setReciter: (reciter: Reciter) => void;
   cachePageVerses: (absolutePage: number, verses: Verse[]) => void;
@@ -27,6 +29,7 @@ export const useRepasaStore = create<RepasaState>()(
     (set, get) => ({
       completedVueltas: {},
       pageStats: {},
+      listenStats: {},
       reciter: 'husary',
       pageCache: {},
       availableVueltas: [1, 2], // Valor inicial por defecto
@@ -60,6 +63,24 @@ export const useRepasaStore = create<RepasaState>()(
         const cur = state.pageStats[pageKey] || { listenCount: 0, recordCount: 0 };
         return {
           pageStats: { ...state.pageStats, [pageKey]: { ...cur, listenCount: cur.listenCount + 1 } },
+        };
+      }),
+
+      incrementListenDetailed: (targetId, type, reciter) => set((state) => {
+        const listenStats = state.listenStats || {};
+        const currentTarget = listenStats[targetId] || { type, counts: {} };
+        const currentCount = currentTarget.counts[reciter] || 0;
+        return {
+          listenStats: {
+            ...listenStats,
+            [targetId]: {
+              ...currentTarget,
+              counts: {
+                ...currentTarget.counts,
+                [reciter]: currentCount + 1,
+              },
+            },
+          },
         };
       }),
 
@@ -99,6 +120,7 @@ export const useRepasaStore = create<RepasaState>()(
       partialize: (state) => ({
         completedVueltas: state.completedVueltas,
         pageStats: state.pageStats,
+        listenStats: state.listenStats,
         reciter: state.reciter,
         pageCache: state.pageCache,
         availableVueltas: state.availableVueltas,

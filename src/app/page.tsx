@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { BookOpen, Settings, Lock, Globe } from "lucide-react";
+import { BookOpen, Settings, Lock, Globe, BarChart2 } from "lucide-react";
 import { useRepasaStore } from "@/store/useStore";
 import { useTranslation } from "@/hooks/useTranslation";
 import { OnboardingModal } from "@/components/OnboardingModal";
@@ -64,6 +64,13 @@ export default function Home() {
             <Globe className="w-3.5 h-3.5 opacity-60" />
             {t('lang.toggle')}
           </button>
+          <Link
+            href="/stats"
+            title="Estadísticas"
+            className="p-2 rounded-full hover:bg-[var(--color-card)] transition-colors"
+          >
+            <BarChart2 className="w-5 h-5 opacity-60" />
+          </Link>
           <button
             onClick={() => setShowGuide(true)}
             title={t("onboarding.viewGuide")}
