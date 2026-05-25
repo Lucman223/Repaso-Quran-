@@ -433,7 +433,7 @@ export default function PaginaQuran({
                 }}
               />
             </div>
-          </div>      </div>
+          </div>
         ) : (
           <div className="flex flex-col">
             {/* A-B Repeat UI */}
