@@ -65,7 +65,12 @@
     "step4Title": "Ezberleme Döngüsü",
     "step4Desc": "Bir ayet aralığı (başlangıç – bitiş) ve tekrar sayısı seç. Oynatıcı ezberlemenize yardımcı olmak için aralığı otomatik tekrar eder.",
     "step5Title": "Oku ve Tekrar Et",
-    "step5Desc": "Ses tanıma özelliğini açmak için mikrofon butonuna bas. Ayetleri oku ve metnin orijinaliyle gerçek zamanlı karşılaştır."
+    "step5Desc": "Ses tanıma özelliğini açmak için mikrofon butonuna bas. Ayetleri oku ve metnin orijinaliyle gerçek zamanlı karşılaştır.",
+    "tourBack": "Geri",
+    "tourClose": "Kapat",
+    "tourLast": "Başla",
+    "tourNext": "İleri",
+    "tourSkip": "Geç"
   },
   "stats": {
     "title": "Ayrıntılı İstatistikler",

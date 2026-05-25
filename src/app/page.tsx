@@ -5,21 +5,56 @@ import Link from "next/link";
 import { BookOpen, Settings, Lock, Globe, BarChart2 } from "lucide-react";
 import { useRepasaStore } from "@/store/useStore";
 import { useTranslation } from "@/hooks/useTranslation";
-import { OnboardingModal } from "@/components/OnboardingModal";
+import dynamic from "next/dynamic";
+import { Step } from "react-joyride";
+
+const Joyride = dynamic(() => import("react-joyride"), { ssr: false });
 
 export default function Home() {
   const completedVueltasMap = useRepasaStore((state) => state.completedVueltas);
   const availableVueltas = useRepasaStore((state) => state.availableVueltas);
   const fetchAvailableVueltas = useRepasaStore((state) => state.fetchAvailableVueltas);
   const setLocale = useRepasaStore((state) => state.setLocale);
-  const hasSeenOnboarding = useRepasaStore((state) => state.hasSeenOnboarding);
-  const markOnboardingSeen = useRepasaStore((state) => state.markOnboardingSeen);
+  const hasSeenHomeTour = useRepasaStore((state) => state.hasSeenHomeTour);
+  const markHomeTourSeen = useRepasaStore((state) => state.markHomeTourSeen);
+  const resetTours = useRepasaStore((state) => state.resetTours);
   const { t, locale } = useTranslation();
   const [showGuide, setShowGuide] = useState(false);
 
+  const [isMounted, setIsMounted] = useState(false);
+
   useEffect(() => {
+    setIsMounted(true);
     fetchAvailableVueltas();
   }, [fetchAvailableVueltas]);
+
+  const steps: Step[] = [
+    {
+      target: "body",
+      placement: "center",
+      title: t("onboarding.step1Title"),
+      content: t("onboarding.step1Desc"),
+      disableBeacon: true,
+    },
+    {
+      target: "#tour-progress",
+      title: t("onboarding.step2Title"),
+      content: "Aquí puedes ver tu progreso total a través de las 20 vueltas.",
+    },
+    {
+      target: "#tour-vueltas",
+      title: t("onboarding.step2Title"),
+      content: t("onboarding.step2Desc"),
+    }
+  ];
+
+  const handleJoyrideCallback = (data: any) => {
+    const { status } = data;
+    if (["finished", "skipped"].includes(status)) {
+      markHomeTourSeen();
+      setShowGuide(false);
+    }
+  };
 
   const totalCompleted = Object.values(completedVueltasMap).reduce(
     (sum, vueltas) => sum + vueltas.length,
@@ -72,7 +107,10 @@ export default function Home() {
             <BarChart2 className="w-5 h-5 opacity-60" />
           </Link>
           <button
-            onClick={() => setShowGuide(true)}
+            onClick={() => {
+              resetTours();
+              setShowGuide(true);
+            }}
             title={t("onboarding.viewGuide")}
             className="p-2 rounded-full hover:bg-[var(--color-card)] transition-colors"
           >
@@ -83,7 +121,7 @@ export default function Home() {
 
       <main className="flex-1 p-4 pb-8 max-w-2xl mx-auto w-full space-y-6">
         {/* Progreso total */}
-        <div className="bg-[var(--color-primary)] text-white rounded-2xl p-5 shadow-lg relative overflow-hidden">
+        <div id="tour-progress" className="bg-[var(--color-primary)] text-white rounded-2xl p-5 shadow-lg relative overflow-hidden">
           <div className="relative z-10">
             <p className="text-sm opacity-80 font-medium">{t('home.totalProgress')}</p>
             <div className="flex items-end gap-3 mt-1">
@@ -103,7 +141,7 @@ export default function Home() {
         </div>
 
         {/* Grid de Vueltas */}
-        <div>
+        <div id="tour-vueltas">
           <h2 className="text-base font-semibold opacity-70 mb-3 uppercase tracking-wider text-xs">
             {t('home.selectVuelta')}
           </h2>
@@ -141,12 +179,29 @@ export default function Home() {
           </div>
         </div>
       </main>
-      {/* Onboarding modal — first launch or via Settings */}
-      {(!hasSeenOnboarding || showGuide) && (
-        <OnboardingModal
-          onClose={() => {
-            markOnboardingSeen();
-            setShowGuide(false);
+
+      {isMounted && (
+        <Joyride
+          steps={steps}
+          run={!hasSeenHomeTour || showGuide}
+          continuous
+          scrollToFirstStep
+          showProgress
+          showSkipButton
+          disableOverlayClose
+          callback={handleJoyrideCallback}
+          styles={{
+            options: {
+              primaryColor: 'var(--color-primary)',
+              zIndex: 1000,
+            },
+          }}
+          locale={{
+            back: t('onboarding.tourBack'),
+            close: t('onboarding.tourClose'),
+            last: t('onboarding.tourLast'),
+            next: t('onboarding.tourNext'),
+            skip: t('onboarding.tourSkip'),
           }}
         />
       )}

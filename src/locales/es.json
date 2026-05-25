@@ -65,7 +65,12 @@
     "step4Title": "Bucle de Memorización",
     "step4Desc": "Selecciona un rango de aleyas (desde – hasta) y el número de repeticiones. El reproductor repetirá automáticamente ese rango para ayudarte a memorizar.",
     "step5Title": "Recita y Repasa",
-    "step5Desc": "Usa el botón del micrófono para activar el reconocimiento de voz. Recita las aleyas y compara tu recitación con el texto original en tiempo real."
+    "step5Desc": "Usa el botón del micrófono para activar el reconocimiento de voz. Recita las aleyas y compara tu recitación con el texto original en tiempo real.",
+    "tourBack": "Atrás",
+    "tourClose": "Cerrar",
+    "tourLast": "Empezar",
+    "tourNext": "Siguiente",
+    "tourSkip": "Saltar"
   },
   "stats": {
     "title": "Estadísticas Detalladas",

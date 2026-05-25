@@ -24,6 +24,10 @@ import {
   type Verse,
 } from "@/lib/quran";
 import { useTranslation } from "@/hooks/useTranslation";
+import dynamic from "next/dynamic";
+import { Step } from "react-joyride";
+
+const Joyride = dynamic(() => import("react-joyride"), { ssr: false });
 
 export default function PaginaQuran({
   params,
@@ -57,6 +61,40 @@ export default function PaginaQuran({
 
   const currentStats = pageStats[pageKey] ?? { listenCount: 0, recordCount: 0 };
   const isVueltaCompleted = (completedVueltas[id] ?? []).includes(vueltaId);
+
+  const hasSeenJuzTour = useRepasaStore((state) => state.hasSeenJuzTour);
+  const markJuzTourSeen = useRepasaStore((state) => state.markJuzTourSeen);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const steps: Step[] = [
+    {
+      target: "#tour-reciters",
+      title: t("onboarding.step3Title"),
+      content: t("onboarding.step3Desc"),
+      disableBeacon: true,
+    },
+    {
+      target: "#tour-loop",
+      title: t("onboarding.step4Title"),
+      content: t("onboarding.step4Desc"),
+    },
+    {
+      target: "#tour-mic",
+      title: t("onboarding.step5Title"),
+      content: t("onboarding.step5Desc"),
+    }
+  ];
+
+  const handleJoyrideCallback = (data: any) => {
+    const { status } = data;
+    if (["finished", "skipped"].includes(status)) {
+      markJuzTourSeen();
+    }
+  };
 
   // Verses
   const [verses, setVerses] = useState<Verse[]>(pageCache[absolutePage] ?? []);
@@ -343,7 +381,7 @@ export default function PaginaQuran({
       </header>
 
       {/* Reciter & Mode selector */}
-      <div className="flex-none flex items-center justify-between gap-2 px-4 py-2 border-b border-[var(--color-border)] bg-[var(--color-card)] overflow-x-auto">
+      <div id="tour-reciters" className="flex-none flex items-center justify-between gap-2 px-4 py-2 border-b border-[var(--color-border)] bg-[var(--color-card)] overflow-x-auto">
         {/* Selector de Modo */}
         <div className="flex shrink-0 bg-[var(--color-background)] rounded-lg p-1 border border-[var(--color-border)]">
           <button 
@@ -438,7 +476,7 @@ export default function PaginaQuran({
           <div className="flex flex-col">
             {/* A-B Repeat UI */}
             {verses.length > 0 && reciter !== 'krh' && (
-              <div className="mx-4 my-3 p-4 bg-[var(--color-card)] rounded-xl border border-[var(--color-border)] shadow-sm">
+              <div id="tour-loop" className="mx-4 my-3 p-4 bg-[var(--color-card)] rounded-xl border border-[var(--color-border)] shadow-sm">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-xs font-semibold text-[var(--color-gold)] flex items-center gap-1.5 uppercase tracking-wider">
                     <Repeat className="w-3.5 h-3.5" /> {t('juz.memorizeLoop')}
@@ -607,6 +645,7 @@ export default function PaginaQuran({
         <div className="flex items-center gap-3 max-w-sm mx-auto">
           {/* Mic button */}
           <button
+            id="tour-mic"
             onClick={toggleRecord}
             className={`flex items-center justify-center w-12 h-12 rounded-full transition-all active:scale-95 shadow ${
               isRecording
@@ -680,6 +719,32 @@ export default function PaginaQuran({
             </div>
           </div>
         </div>
+      )}
+
+      {isMounted && (
+        <Joyride
+          steps={steps}
+          run={!hasSeenJuzTour}
+          continuous
+          scrollToFirstStep
+          showProgress
+          showSkipButton
+          disableOverlayClose
+          callback={handleJoyrideCallback}
+          styles={{
+            options: {
+              primaryColor: 'var(--color-primary)',
+              zIndex: 1000,
+            },
+          }}
+          locale={{
+            back: t('onboarding.tourBack'),
+            close: t('onboarding.tourClose'),
+            last: t('onboarding.tourLast'),
+            next: t('onboarding.tourNext'),
+            skip: t('onboarding.tourSkip'),
+          }}
+        />
       )}
     </div>
   );
