@@ -1,11 +1,15 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Reciter, Verse } from '@/lib/quran';
+import { getAccessToken } from '@/lib/supabase';
+
+type PageStats = Record<string, { listenCount: number; recordCount: number }>;
+type ListenStats = Record<string, { type: 'page' | 'ayah'; counts: Record<string, number> }>;
 
 interface RepasaState {
   completedVueltas: Record<string, number[]>;
-  pageStats: Record<string, { listenCount: number; recordCount: number }>;
-  listenStats: Record<string, { type: 'page' | 'ayah'; counts: Record<string, number> }>;
+  pageStats: PageStats;
+  listenStats: ListenStats;
   reciter: Reciter;
   pageCache: Record<number, Verse[]>;
   availableVueltas: number[];
@@ -21,11 +25,68 @@ interface RepasaState {
   setReciter: (reciter: Reciter) => void;
   cachePageVerses: (absolutePage: number, verses: Verse[]) => void;
   fetchAvailableVueltas: () => Promise<void>;
+  loadProgressFromServer: () => Promise<void>;
   setLocale: (locale: 'es' | 'tr') => void;
   markHomeTourSeen: () => void;
   markJuzTourSeen: () => void;
   resetTours: () => void;
 }
+
+const syncToServer = async (state: Pick<RepasaState, 'completedVueltas' | 'pageStats' | 'listenStats'>) => {
+  if (typeof window === 'undefined') return;
+  const token = await getAccessToken();
+  if (!token) return;
+  try {
+    await fetch('/api/progress', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        completedVueltas: state.completedVueltas,
+        pageStats: state.pageStats,
+        listenStats: state.listenStats
+      })
+    });
+  } catch (e) {
+    console.error("Error al sincronizar progreso con el servidor:", e);
+  }
+};
+
+// Fusiona el progreso remoto con el local sin perder nada: unión de vueltas
+// completadas y máximo de cada contador (lo hecho offline no se pisa).
+const mergeProgress = (
+  local: Pick<RepasaState, 'completedVueltas' | 'pageStats' | 'listenStats'>,
+  remote: { completedVueltas?: Record<string, number[]>; pageStats?: PageStats; listenStats?: ListenStats }
+) => {
+  const completedVueltas: Record<string, number[]> = { ...local.completedVueltas };
+  for (const [juzId, vueltas] of Object.entries(remote.completedVueltas || {})) {
+    if (!Array.isArray(vueltas)) continue;
+    completedVueltas[juzId] = Array.from(new Set([...(completedVueltas[juzId] || []), ...vueltas]));
+  }
+
+  const pageStats: PageStats = { ...local.pageStats };
+  for (const [key, stats] of Object.entries(remote.pageStats || {})) {
+    const cur = pageStats[key] || { listenCount: 0, recordCount: 0 };
+    pageStats[key] = {
+      listenCount: Math.max(cur.listenCount, stats?.listenCount || 0),
+      recordCount: Math.max(cur.recordCount, stats?.recordCount || 0),
+    };
+  }
+
+  const listenStats: ListenStats = { ...local.listenStats };
+  for (const [targetId, remoteTarget] of Object.entries(remote.listenStats || {})) {
+    const curTarget = listenStats[targetId] || { type: remoteTarget.type, counts: {} };
+    const counts: Record<string, number> = { ...curTarget.counts };
+    for (const [reciter, count] of Object.entries(remoteTarget.counts || {})) {
+      counts[reciter] = Math.max(counts[reciter] || 0, count || 0);
+    }
+    listenStats[targetId] = { ...curTarget, counts };
+  }
+
+  return { completedVueltas, pageStats, listenStats };
+};
 
 export const useRepasaStore = create<RepasaState>()(
   persist(
@@ -43,17 +104,19 @@ export const useRepasaStore = create<RepasaState>()(
       markVueltaCompleted: (juzId, vueltaId) => set((state) => {
         const currentJuz = state.completedVueltas[juzId] || [];
         if (currentJuz.includes(vueltaId)) return state;
-        return {
+        const updated = {
           completedVueltas: {
             ...state.completedVueltas,
             [juzId]: [...currentJuz, vueltaId],
           },
         };
+        setTimeout(() => syncToServer({ ...state, ...updated }), 0);
+        return updated;
       }),
 
       toggleVueltaCompleted: (juzId, vueltaId) => set((state) => {
         const currentJuz = state.completedVueltas[juzId] || [];
-        return {
+        const updated = {
           completedVueltas: {
             ...state.completedVueltas,
             [juzId]: currentJuz.includes(vueltaId)
@@ -61,20 +124,24 @@ export const useRepasaStore = create<RepasaState>()(
               : [...currentJuz, vueltaId],
           },
         };
+        setTimeout(() => syncToServer({ ...state, ...updated }), 0);
+        return updated;
       }),
 
       incrementListen: (pageKey) => set((state) => {
         const cur = state.pageStats[pageKey] || { listenCount: 0, recordCount: 0 };
-        return {
+        const updated = {
           pageStats: { ...state.pageStats, [pageKey]: { ...cur, listenCount: cur.listenCount + 1 } },
         };
+        setTimeout(() => syncToServer({ ...state, ...updated }), 0);
+        return updated;
       }),
 
       incrementListenDetailed: (targetId, type, reciter) => set((state) => {
         const listenStats = state.listenStats || {};
         const currentTarget = listenStats[targetId] || { type, counts: {} };
         const currentCount = currentTarget.counts[reciter] || 0;
-        return {
+        const updated = {
           listenStats: {
             ...listenStats,
             [targetId]: {
@@ -86,13 +153,17 @@ export const useRepasaStore = create<RepasaState>()(
             },
           },
         };
+        setTimeout(() => syncToServer({ ...state, ...updated }), 0);
+        return updated;
       }),
 
       incrementRecord: (pageKey) => set((state) => {
         const cur = state.pageStats[pageKey] || { listenCount: 0, recordCount: 0 };
-        return {
+        const updated = {
           pageStats: { ...state.pageStats, [pageKey]: { ...cur, recordCount: cur.recordCount + 1 } },
         };
+        setTimeout(() => syncToServer({ ...state, ...updated }), 0);
+        return updated;
       }),
 
       setReciter: (reciter) => set({ reciter }),
@@ -100,6 +171,24 @@ export const useRepasaStore = create<RepasaState>()(
       cachePageVerses: (absolutePage, verses) => set((state) => ({
         pageCache: { ...state.pageCache, [absolutePage]: verses },
       })),
+
+      loadProgressFromServer: async () => {
+        const token = await getAccessToken();
+        if (!token) return;
+        try {
+          const res = await fetch('/api/progress', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (!res.ok) return;
+          const remote = await res.json();
+          const merged = mergeProgress(get(), remote);
+          set(merged);
+          // Subir el resultado fusionado para que el servidor también quede al día
+          syncToServer(merged);
+        } catch (e) {
+          console.error("Error al cargar el progreso desde el servidor:", e);
+        }
+      },
 
       fetchAvailableVueltas: async () => {
         try {

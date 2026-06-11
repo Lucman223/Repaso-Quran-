@@ -2,15 +2,17 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { BookOpen, Settings, Lock, Globe, BarChart2 } from "lucide-react";
+import { BookOpen, Settings, Lock, Globe, BarChart2, Shield, LogOut, User } from "lucide-react";
 import { useRepasaStore } from "@/store/useStore";
 import { useTranslation } from "@/hooks/useTranslation";
 import { GuidedTour, type TourStep } from "@/components/GuidedTour";
+import { supabase } from "@/lib/supabase";
 
 export default function Home() {
   const completedVueltasMap = useRepasaStore((state) => state.completedVueltas);
   const availableVueltas = useRepasaStore((state) => state.availableVueltas);
   const fetchAvailableVueltas = useRepasaStore((state) => state.fetchAvailableVueltas);
+  const loadProgressFromServer = useRepasaStore((state) => state.loadProgressFromServer);
   const setLocale = useRepasaStore((state) => state.setLocale);
   const hasSeenHomeTour = useRepasaStore((state) => state.hasSeenHomeTour);
   const markHomeTourSeen = useRepasaStore((state) => state.markHomeTourSeen);
@@ -19,11 +21,66 @@ export default function Home() {
   const [showGuide, setShowGuide] = useState(false);
 
   const [isMounted, setIsMounted] = useState(false);
+  const [sessionUser, setSessionUser] = useState<any>(null);
+  const [userRole, setUserRole] = useState<string>('user');
 
   useEffect(() => {
     setIsMounted(true);
     fetchAvailableVueltas();
-  }, [fetchAvailableVueltas]);
+
+    // Obtener sesión inicial
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSessionUser(session?.user ?? null);
+      if (session) {
+        checkUserRole(session.access_token);
+        // Traer el progreso guardado en el servidor y fusionarlo con el local
+        loadProgressFromServer();
+      }
+    });
+
+    // Escuchar cambios de estado de auth
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setSessionUser(session?.user ?? null);
+      if (session) {
+        checkUserRole(session.access_token);
+        if (event === 'SIGNED_IN') {
+          loadProgressFromServer();
+        }
+      } else {
+        setUserRole('user');
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [fetchAvailableVueltas, loadProgressFromServer]);
+
+  const checkUserRole = async (token: string) => {
+    try {
+      const res = await fetch('/api/auth/me', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUserRole(data.role || 'user');
+      }
+    } catch (e) {
+      console.error("Error checking user role:", e);
+    }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    // Limpiar Zustand a valores por defecto para que no se mantenga el progreso del usuario anterior
+    useRepasaStore.setState({
+      completedVueltas: {},
+      pageStats: {},
+      listenStats: {},
+    });
+  };
 
   const steps: TourStep[] = [
     {
@@ -121,6 +178,35 @@ export default function Home() {
           >
             <Settings className="w-5 h-5 opacity-60" />
           </button>
+
+          {/* Enlaces de Admin y Auth */}
+          {sessionUser && userRole === 'admin' && (
+            <Link
+              href="/admin"
+              title="Panel Admin"
+              className="p-2 rounded-full hover:bg-[var(--color-card)] text-emerald-500 hover:text-emerald-400 transition-colors"
+            >
+              <Shield className="w-5 h-5" />
+            </Link>
+          )}
+
+          {sessionUser ? (
+            <button
+              onClick={handleLogout}
+              title="Cerrar Sesión"
+              className="p-2 rounded-full hover:bg-[var(--color-card)] text-rose-500 hover:text-rose-400 transition-colors cursor-pointer"
+            >
+              <LogOut className="w-5 h-5" />
+            </button>
+          ) : (
+            <Link
+              href="/login"
+              title="Iniciar Sesión"
+              className="p-2 rounded-full hover:bg-[var(--color-card)] text-[var(--color-primary)] transition-colors"
+            >
+              <User className="w-5 h-5" />
+            </Link>
+          )}
         </div>
       </header>
 
