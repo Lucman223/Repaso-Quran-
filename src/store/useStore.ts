@@ -6,6 +6,19 @@ import { getAccessToken } from '@/lib/firebase';
 type PageStats = Record<string, { listenCount: number; recordCount: number }>;
 type ListenStats = Record<string, { type: 'page' | 'ayah'; counts: Record<string, number> }>;
 
+// Forma del estado guardado en localStorage (debe coincidir con partialize)
+type PersistedState = {
+  completedVueltas: Record<string, number[]>;
+  pageStats: PageStats;
+  listenStats: ListenStats;
+  reciter: Reciter;
+  pageCache: Record<number, Verse[]>;
+  availableVueltas: number[];
+  locale: 'es' | 'tr';
+  hasSeenHomeTour: boolean;
+  hasSeenJuzTour: boolean;
+};
+
 interface RepasaState {
   completedVueltas: Record<string, number[]>;
   pageStats: PageStats;
@@ -97,7 +110,7 @@ export const useRepasaStore = create<RepasaState>()(
       reciter: 'husary',
       pageCache: {},
       availableVueltas: [1, 2], // Valor inicial por defecto
-      locale: 'es' as const,
+      locale: 'tr' as const,
       hasSeenHomeTour: false,
       hasSeenJuzTour: false,
 
@@ -212,6 +225,16 @@ export const useRepasaStore = create<RepasaState>()(
     }),
     {
       name: 'repaso-storage-v3', // Nombre actualizado de la plataforma
+      version: 1,
+      // v0 → v1: el idioma por defecto pasa a ser turco. Cambio único en
+      // dispositivos existentes; el usuario puede volver a ES con el botón.
+      migrate: (persisted, version) => {
+        const state = persisted as PersistedState;
+        if (version < 1) {
+          return { ...state, locale: 'tr' as const };
+        }
+        return state;
+      },
       partialize: (state) => ({
         completedVueltas: state.completedVueltas,
         pageStats: state.pageStats,

@@ -30,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="es"
+      lang="tr"
       className={`${inter.variable} ${amiri.variable} h-full antialiased`}
       suppressHydrationWarning
     >
