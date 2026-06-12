@@ -1,10 +1,34 @@
 import { NextRequest } from 'next/server';
-import { supabase, supabaseAdmin } from './supabase';
+import { adminAuth, adminDb } from './firebaseAdmin';
 
 export interface AuthenticatedUser {
   id: string;
   email?: string;
+  name?: string;
   role: string;
+}
+
+// Crea el perfil en Firestore si no existe. El primer perfil de la
+// plataforma se convierte automáticamente en admin.
+async function ensureProfile(uid: string, email?: string, name?: string) {
+  const ref = adminDb.collection('profiles').doc(uid);
+  const snap = await ref.get();
+  if (snap.exists) return snap.data() as { role?: string; name?: string };
+
+  const countSnap = await adminDb.collection('profiles').count().get();
+  const role = countSnap.data().count === 0 ? 'admin' : 'user';
+
+  const profile = {
+    email: email || '',
+    name: name || '',
+    role,
+    completedVueltas: {},
+    pageStats: {},
+    listenStats: {},
+    updatedAt: new Date().toISOString(),
+  };
+  await ref.set(profile);
+  return profile;
 }
 
 export async function getAuthUser(req: NextRequest): Promise<AuthenticatedUser | null> {
@@ -15,25 +39,13 @@ export async function getAuthUser(req: NextRequest): Promise<AuthenticatedUser |
     }
 
     const token = authHeader.split(' ')[1];
-    
-    // Verificamos el token con Supabase Auth
-    const { data: { user }, error } = await supabase.auth.getUser(token);
-    if (error || !user) {
-      return null;
-    }
-
-    // Buscamos el rol del usuario en la tabla de perfiles (por defecto 'user').
-    // Hay que usar el cliente admin: el cliente anon no lleva el JWT del usuario
-    // en esta petición, así que RLS bloquearía la lectura y el rol siempre sería 'user'.
-    const { data: profile } = await supabaseAdmin
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
+    const decoded = await adminAuth.verifyIdToken(token);
+    const profile = await ensureProfile(decoded.uid, decoded.email, decoded.name);
 
     return {
-      id: user.id,
-      email: user.email,
+      id: decoded.uid,
+      email: decoded.email,
+      name: profile?.name || '',
       role: profile?.role || 'user',
     };
   } catch (e) {

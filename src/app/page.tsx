@@ -6,7 +6,8 @@ import { BookOpen, Settings, Lock, Globe, BarChart2, Shield, LogOut, User } from
 import { useRepasaStore } from "@/store/useStore";
 import { useTranslation } from "@/hooks/useTranslation";
 import { GuidedTour, type TourStep } from "@/components/GuidedTour";
-import { supabase } from "@/lib/supabase";
+import { signOut, onAuthStateChanged, type User as FirebaseUser } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 export default function Home() {
   const completedVueltasMap = useRepasaStore((state) => state.completedVueltas);
@@ -21,39 +22,27 @@ export default function Home() {
   const [showGuide, setShowGuide] = useState(false);
 
   const [isMounted, setIsMounted] = useState(false);
-  const [sessionUser, setSessionUser] = useState<any>(null);
+  const [sessionUser, setSessionUser] = useState<FirebaseUser | null>(null);
   const [userRole, setUserRole] = useState<string>('user');
 
   useEffect(() => {
     setIsMounted(true);
     fetchAvailableVueltas();
 
-    // Obtener sesión inicial
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSessionUser(session?.user ?? null);
-      if (session) {
-        checkUserRole(session.access_token);
+    // Escuchar el estado de auth (también se dispara al restaurar la sesión)
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setSessionUser(user);
+      if (user) {
+        const token = await user.getIdToken();
+        checkUserRole(token);
         // Traer el progreso guardado en el servidor y fusionarlo con el local
         loadProgressFromServer();
-      }
-    });
-
-    // Escuchar cambios de estado de auth
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setSessionUser(session?.user ?? null);
-      if (session) {
-        checkUserRole(session.access_token);
-        if (event === 'SIGNED_IN') {
-          loadProgressFromServer();
-        }
       } else {
         setUserRole('user');
       }
     });
 
-    return () => {
-      subscription.unsubscribe();
-    };
+    return () => unsubscribe();
   }, [fetchAvailableVueltas, loadProgressFromServer]);
 
   const checkUserRole = async (token: string) => {
@@ -73,7 +62,7 @@ export default function Home() {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    await signOut(auth);
     // Limpiar Zustand a valores por defecto para que no se mantenga el progreso del usuario anterior
     useRepasaStore.setState({
       completedVueltas: {},

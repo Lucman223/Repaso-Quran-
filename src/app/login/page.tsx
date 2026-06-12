@@ -2,7 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile,
+} from 'firebase/auth';
+import { auth, getAccessToken } from '@/lib/firebase';
 import { useRepasaStore } from '@/store/useStore';
 
 export default function LoginPage() {
@@ -53,8 +58,8 @@ export default function LoginPage() {
 
   // Si ya está logueado, redirigir a inicio
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
+    auth.authStateReady().then(() => {
+      if (auth.currentUser) {
         router.push('/');
       }
     });
@@ -68,49 +73,45 @@ export default function LoginPage() {
 
     try {
       if (isSignUp) {
-        // REGISTRO
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              name: name,
-            }
-          }
-        });
-
-        if (error) {
-          setErrorMsg(error.message);
-        } else {
-          // En Supabase, a veces requiere confirmación de email.
-          // Si no está activa la confirmación de email, podemos iniciar sesión o pedir que lo haga.
-          setSuccessMsg(t.successRegister);
-          setIsSignUp(false);
-          setPassword('');
+        // REGISTRO — Firebase deja la sesión iniciada automáticamente
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        if (name) {
+          await updateProfile(cred.user, { displayName: name });
         }
       } else {
         // INICIO DE SESIÓN
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-        if (error) {
-          setErrorMsg(error.message);
-        } else if (data.session) {
-          setSuccessMsg(t.successLogin);
-
-          // Sincronizar el progreso desde el servidor (fusiona con el local)
-          await useRepasaStore.getState().loadProgressFromServer();
-
-          // Redirigir al inicio
-          router.push('/');
-          router.refresh();
-        }
+        await signInWithEmailAndPassword(auth, email, password);
       }
-    } catch (err) {
+
+      setSuccessMsg(t.successLogin);
+
+      // Crear/verificar el perfil en el servidor (el primer usuario se hace admin)
+      const token = await getAccessToken();
+      if (token) {
+        await fetch('/api/auth/me', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      }
+
+      // Sincronizar el progreso desde el servidor (fusiona con el local)
+      await useRepasaStore.getState().loadProgressFromServer();
+
+      // Redirigir al inicio
+      router.push('/');
+      router.refresh();
+    } catch (err: unknown) {
       console.error(err);
-      setErrorMsg(t.errorGeneric);
+      const code = (err as { code?: string })?.code || '';
+      const friendly: Record<string, string> = {
+        'auth/email-already-in-use': 'Ese correo ya está registrado. Inicia sesión.',
+        'auth/invalid-credential': 'Correo o contraseña incorrectos.',
+        'auth/wrong-password': 'Correo o contraseña incorrectos.',
+        'auth/user-not-found': 'No existe ninguna cuenta con ese correo.',
+        'auth/weak-password': 'La contraseña debe tener al menos 6 caracteres.',
+        'auth/invalid-email': 'El correo no es válido.',
+        'auth/too-many-requests': 'Demasiados intentos. Espera unos minutos.',
+      };
+      setErrorMsg(friendly[code] || t.errorGeneric);
     } finally {
       setLoading(false);
     }

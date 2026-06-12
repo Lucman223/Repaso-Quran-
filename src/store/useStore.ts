@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Reciter, Verse } from '@/lib/quran';
-import { getAccessToken } from '@/lib/supabase';
+import { getAccessToken } from '@/lib/firebase';
 
 type PageStats = Record<string, { listenCount: number; recordCount: number }>;
 type ListenStats = Record<string, { type: 'page' | 'ayah'; counts: Record<string, number> }>;

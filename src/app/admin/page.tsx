@@ -3,17 +3,17 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useRepasaStore } from '@/store/useStore';
-import { getAccessToken } from '@/lib/supabase';
+import { getAccessToken } from '@/lib/firebase';
 
 interface UserProfile {
   id: string;
   email: string;
   name?: string;
   role: string;
-  completed_vueltas: Record<string, number[]>;
-  page_stats: Record<string, { listenCount: number; recordCount: number }>;
-  listen_stats: Record<string, any>;
-  updated_at: string;
+  completedVueltas: Record<string, number[]>;
+  pageStats: Record<string, { listenCount: number; recordCount: number }>;
+  listenStats: Record<string, unknown>;
+  updatedAt: string;
 }
 
 export default function AdminPage() {
@@ -184,8 +184,8 @@ export default function AdminPage() {
                   </tr>
                 ) : (
                   filteredUsers.map((user) => {
-                    const completedCount = countCompletedVueltas(user.completed_vueltas);
-                    const lastActive = new Date(user.updated_at).toLocaleString(locale === 'es' ? 'es-ES' : 'tr-TR', {
+                    const completedCount = countCompletedVueltas(user.completedVueltas);
+                    const lastActive = new Date(user.updatedAt).toLocaleString(locale === 'es' ? 'es-ES' : 'tr-TR', {
                       dateStyle: 'medium',
                       timeStyle: 'short'
                     });
