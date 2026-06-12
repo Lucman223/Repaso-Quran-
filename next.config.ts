@@ -8,6 +8,8 @@ const withPWA = withPWAInit({
 });
 
 const nextConfig: NextConfig = {
+  // firebase-admin no debe empaquetarse con webpack (usa require dinámicos)
+  serverExternalPackages: ["firebase-admin"],
   images: {
     remotePatterns: [
       {
