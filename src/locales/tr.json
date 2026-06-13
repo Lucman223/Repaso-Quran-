@@ -90,8 +90,9 @@
   "libre": {
     "title": "Serbest tekrar",
     "newTitle": "Serbest tekrar",
-    "newSubtitle": "İstediğin sayfayı veya ayet aralığını seç",
+    "newSubtitle": "Herhangi bir cüz ve turun sayfalarını karıştır, veya ayet aralıkları ekle",
     "addPageTitle": "Sayfa ekle",
+    "pagePreview": "Bu kombinasyon {local}. sayfa (tam Mushaf'ta {abs}. sayfa).",
     "addRangeTitle": "Ayet aralığı ekle",
     "addRangeHint": "Biçim sure:ayet (örn. 2:6). Bir sayfada başlayıp başka sayfada bitebilir.",
     "from": "Başlangıç",

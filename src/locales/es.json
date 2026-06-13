@@ -90,8 +90,9 @@
   "libre": {
     "title": "Repaso libre",
     "newTitle": "Repaso libre",
-    "newSubtitle": "Elige cualquier página o rango de aleyas",
+    "newSubtitle": "Mezcla páginas de cualquier juz y vuelta, o rangos de aleyas",
     "addPageTitle": "Añadir una página",
+    "pagePreview": "Esta combinación es la página {local} (página {abs} del Mushaf completo).",
     "addRangeTitle": "Añadir un rango de aleyas",
     "addRangeHint": "Formato sura:aleya (ej. 2:6). Puede empezar en una página y terminar en otra.",
     "from": "Desde",

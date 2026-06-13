@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Plus, Trash2, FileText, ListMusic, Play } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
-import { AVAILABLE_VUELTAS } from "@/lib/quran";
+import { AVAILABLE_VUELTAS, localPageNumber, absolutePageOf } from "@/lib/quran";
 import { labelSegmento, type Segmento } from "@/lib/segmentos";
 import { REPASO_LIBRE_KEY, type RepasoLibreConfig } from "@/lib/repasoLibre";
 
@@ -133,6 +133,13 @@ export default function NuevoRepasoLibrePage() {
               {t("libre.add")}
             </button>
           </div>
+          {/* Previsualización: qué página del Mushaf es la combinación juz+vuelta */}
+          <p className="text-[11px] opacity-60 mt-2">
+            {t("libre.pagePreview", {
+              local: String(localPageNumber(juz, vuelta)),
+              abs: String(absolutePageOf(juz, vuelta)),
+            })}
+          </p>
         </section>
 
         {/* Añadir rango de aleyas */}
@@ -208,10 +215,8 @@ export default function NuevoRepasoLibrePage() {
                       </p>
                       <p className="text-[10px] opacity-50 uppercase">
                         {seg.tipo === "pagina"
-                          ? t("libre.typePage")
-                          : t("libre.typeRange")}
-                        {" · "}
-                        {labelSegmento(seg)}
+                          ? `${t("libre.typePage")} · ${t("vuelta.page")} ${localPageNumber(seg.juz, seg.vuelta)}`
+                          : `${t("libre.typeRange")} · ${labelSegmento(seg)}`}
                       </p>
                     </div>
                   </div>
