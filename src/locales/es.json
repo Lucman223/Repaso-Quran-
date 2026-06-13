@@ -82,6 +82,36 @@
   "lang": {
     "toggle": "TR"
   },
+  "guest": {
+    "warning": "Estás usando la app sin cuenta: tu progreso solo se guarda en este dispositivo y podría perderse.",
+    "cta": "Crear cuenta",
+    "dismiss": "Cerrar aviso"
+  },
+  "libre": {
+    "title": "Repaso libre",
+    "newTitle": "Repaso libre",
+    "newSubtitle": "Elige cualquier página o rango de aleyas",
+    "addPageTitle": "Añadir una página",
+    "addRangeTitle": "Añadir un rango de aleyas",
+    "addRangeHint": "Formato sura:aleya (ej. 2:6). Puede empezar en una página y terminar en otra.",
+    "from": "Desde",
+    "to": "Hasta",
+    "add": "Añadir",
+    "rangeInvalid": "Formato inválido. Usa sura:aleya, por ejemplo 2:6.",
+    "listTitle": "Tu selección ({n})",
+    "listEmpty": "Aún no has añadido nada. Añade páginas o rangos de aleyas arriba.",
+    "typePage": "Página",
+    "typeRange": "Rango",
+    "remove": "Quitar",
+    "start": "Empezar repaso",
+    "resolving": "Preparando las páginas…",
+    "resolveError": "No se pudo preparar el repaso.",
+    "backToSelection": "Volver a la selección",
+    "empty": "No hay nada que repasar.",
+    "errorItem": "No se pudo reproducir este tramo, saltando…",
+    "imageMissing": "Imagen aún no disponible (J{j} · V{v})",
+    "pageAlt": "Página {p} del Mushaf"
+  },
   "onboarding": {
     "skip": "Saltar",
     "next": "Siguiente",

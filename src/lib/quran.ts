@@ -21,6 +21,48 @@ export const JUZ_STARTING_PAGES = [
 
 export const AVAILABLE_VUELTAS = [1, 2];
 
+// Número de páginas por juz en el Mushaf de Medina (~20 cada uno).
+export const PAGES_PER_JUZ = 20;
+// Total de páginas del Mushaf estándar (la última es la 604).
+export const TOTAL_MUSHAF_PAGES = 604;
+
+// El método de vueltas recorre una página fija de cada juz: la vuelta V
+// corresponde a la página (21 - V) dentro del juz (vuelta 1 → página 20,
+// la última; vuelta 2 → página 19; etc.). De ahí se derivan tres cosas:
+//   - pageId: índice 1..20 de la página dentro del juz.
+//   - localPageNumber: identificador del archivo de imagen P{n}.png dentro
+//     de la carpeta {vuelta}V (20, 40, 60… para la vuelta 1).
+//   - absolutePage: página real del Mushaf (1..604), usada para el audio.
+export function vueltaToPageId(vuelta: number): number {
+  return 21 - vuelta;
+}
+
+export function localPageNumber(juz: number, vuelta: number): number {
+  return (juz - 1) * PAGES_PER_JUZ + vueltaToPageId(vuelta);
+}
+
+export function absolutePageOf(juz: number, vuelta: number): number {
+  return (JUZ_STARTING_PAGES[juz - 1] ?? 1) + vueltaToPageId(vuelta) - 1;
+}
+
+// Inverso: dada una página absoluta del Mushaf, devuelve a qué juz pertenece
+// (1..30). Busca el último juz cuya página de inicio no supera la página dada.
+export function juzOfAbsolutePage(absolutePage: number): number {
+  let juz = 1;
+  for (let i = 0; i < JUZ_STARTING_PAGES.length; i++) {
+    if (absolutePage >= JUZ_STARTING_PAGES[i]) juz = i + 1;
+    else break;
+  }
+  return juz;
+}
+
+// Ruta de la imagen del Mushaf para una página de una vuelta. El contenido se
+// sube por vuelta: /Coran/{vuelta}V/P{localPageNumber}.png. Puede no existir
+// todavía (el reproductor muestra un placeholder en ese caso).
+export function pageImageUrl(juz: number, vuelta: number): string {
+  return `/Coran/${vuelta}V/P${localPageNumber(juz, vuelta)}.png`;
+}
+
 export function getAyahAudioUrl(
   verseKey: string, 
   reciter: Reciter = 'minshawi', 

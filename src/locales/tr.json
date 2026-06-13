@@ -82,6 +82,36 @@
   "lang": {
     "toggle": "ES"
   },
+  "guest": {
+    "warning": "Uygulamayı hesapsız kullanıyorsun: ilerlemen yalnızca bu cihazda kaydedilir ve kaybolabilir.",
+    "cta": "Hesap oluştur",
+    "dismiss": "Uyarıyı kapat"
+  },
+  "libre": {
+    "title": "Serbest tekrar",
+    "newTitle": "Serbest tekrar",
+    "newSubtitle": "İstediğin sayfayı veya ayet aralığını seç",
+    "addPageTitle": "Sayfa ekle",
+    "addRangeTitle": "Ayet aralığı ekle",
+    "addRangeHint": "Biçim sure:ayet (örn. 2:6). Bir sayfada başlayıp başka sayfada bitebilir.",
+    "from": "Başlangıç",
+    "to": "Bitiş",
+    "add": "Ekle",
+    "rangeInvalid": "Geçersiz biçim. sure:ayet kullan, örneğin 2:6.",
+    "listTitle": "Seçimin ({n})",
+    "listEmpty": "Henüz bir şey eklemedin. Yukarıdan sayfa veya ayet aralığı ekle.",
+    "typePage": "Sayfa",
+    "typeRange": "Aralık",
+    "remove": "Kaldır",
+    "start": "Tekrara başla",
+    "resolving": "Sayfalar hazırlanıyor…",
+    "resolveError": "Tekrar hazırlanamadı.",
+    "backToSelection": "Seçime dön",
+    "empty": "Tekrar edilecek bir şey yok.",
+    "errorItem": "Bu bölüm çalınamadı, atlanıyor…",
+    "imageMissing": "Görsel henüz mevcut değil (C{j} · T{v})",
+    "pageAlt": "Mushaf sayfası {p}"
+  },
   "onboarding": {
     "skip": "Geç",
     "next": "İleri",

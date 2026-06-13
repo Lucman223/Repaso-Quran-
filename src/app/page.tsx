@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { BookOpen, Settings, Lock, Globe, BarChart2, Shield, LogOut, User } from "lucide-react";
+import { BookOpen, Settings, Lock, Globe, BarChart2, Shield, LogOut, User, X, ListMusic } from "lucide-react";
 import { useRepasaStore } from "@/store/useStore";
 import { useTranslation } from "@/hooks/useTranslation";
 import { GuidedTour, type TourStep } from "@/components/GuidedTour";
@@ -24,6 +24,11 @@ export default function Home() {
   const [isMounted, setIsMounted] = useState(false);
   const [sessionUser, setSessionUser] = useState<FirebaseUser | null>(null);
   const [userRole, setUserRole] = useState<string>('user');
+  // El aviso de invitado se oculta una vez que el usuario lo cierra (por dispositivo).
+  // Inicializador perezoso: solo corre en el cliente, sin tocar el server-render.
+  const [guestWarningDismissed, setGuestWarningDismissed] = useState(
+    () => typeof window !== 'undefined' && localStorage.getItem('repaso-guest-warning-dismissed') === '1'
+  );
 
   useEffect(() => {
     setIsMounted(true);
@@ -59,6 +64,11 @@ export default function Home() {
     } catch (e) {
       console.error("Error checking user role:", e);
     }
+  };
+
+  const dismissGuestWarning = () => {
+    localStorage.setItem('repaso-guest-warning-dismissed', '1');
+    setGuestWarningDismissed(true);
   };
 
   const handleLogout = async () => {
@@ -149,6 +159,13 @@ export default function Home() {
             {t('lang.toggle')}
           </button>
           <Link
+            href="/repaso-libre/nuevo"
+            title={t('libre.newTitle')}
+            className="p-2 rounded-full hover:bg-[var(--color-card)] transition-colors"
+          >
+            <ListMusic className="w-5 h-5 opacity-60" />
+          </Link>
+          <Link
             id="tour-stats-btn"
             href="/stats"
             title="Estadísticas"
@@ -200,6 +217,29 @@ export default function Home() {
       </header>
 
       <main className="flex-1 p-4 pb-8 max-w-2xl mx-auto w-full space-y-6">
+        {/* Aviso para usuarios sin cuenta: el progreso solo se guarda en este dispositivo */}
+        {isMounted && !sessionUser && !guestWarningDismissed && (
+          <div className="flex items-start gap-3 bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 rounded-xl p-4">
+            <div className="flex-1 text-sm">
+              <p className="mb-2 leading-snug">{t('guest.warning')}</p>
+              <Link
+                href="/login"
+                className="inline-block font-semibold text-[var(--color-primary)] hover:underline"
+              >
+                {t('guest.cta')}
+              </Link>
+            </div>
+            <button
+              onClick={dismissGuestWarning}
+              title={t('guest.dismiss')}
+              aria-label={t('guest.dismiss')}
+              className="p-1 rounded-full hover:bg-amber-500/20 transition-colors shrink-0"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
         {/* Progreso total */}
         <div id="tour-progress" className="bg-[var(--color-primary)] text-white rounded-2xl p-5 shadow-lg relative overflow-hidden">
           <div className="relative z-10">
