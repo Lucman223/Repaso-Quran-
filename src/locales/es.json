@@ -16,7 +16,7 @@
     "completed": "completados"
   },
   "multi": {
-    "selectPages": "Repaso múltiple",
+    "selectPages": "Repaso libre",
     "cancel": "Cancelar",
     "hint": "Toca las páginas que quieras repasar seguidas",
     "selectAll": "Todas",

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Plus, Trash2, FileText, ListMusic, Play } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { AVAILABLE_VUELTAS, localPageNumber, absolutePageOf } from "@/lib/quran";
@@ -19,9 +19,18 @@ function isValidVerseKey(k: string): boolean {
   return sura >= 1 && sura <= 114 && ayah >= 1;
 }
 
-export default function NuevoRepasoLibrePage() {
+function NuevoRepasoLibre() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { t } = useTranslation();
+
+  // Vuelta inicial: viene de ?vuelta= cuando se entra desde una vuelta concreta
+  // (ej. el botón "seleccionar páginas" de /vuelta/3). Por defecto, la primera
+  // vuelta disponible.
+  const vueltaParam = Number(searchParams.get("vuelta"));
+  const initialVuelta = AVAILABLE_VUELTAS.includes(vueltaParam)
+    ? vueltaParam
+    : AVAILABLE_VUELTAS[0] ?? 1;
 
   const [segmentos, setSegmentos] = useState<Segmento[]>([]);
   const [reps, setReps] = useState(3);
@@ -29,7 +38,7 @@ export default function NuevoRepasoLibrePage() {
 
   // Formulario "añadir página"
   const [juz, setJuz] = useState(1);
-  const [vuelta, setVuelta] = useState(AVAILABLE_VUELTAS[0] ?? 1);
+  const [vuelta, setVuelta] = useState(initialVuelta);
 
   // Formulario "añadir rango de aleyas"
   const [desde, setDesde] = useState("");
@@ -291,5 +300,13 @@ export default function NuevoRepasoLibrePage() {
         </div>
       </section>
     </div>
+  );
+}
+
+export default function NuevoRepasoLibrePage() {
+  return (
+    <Suspense fallback={null}>
+      <NuevoRepasoLibre />
+    </Suspense>
   );
 }

@@ -16,7 +16,7 @@
     "completed": "tamamlandı"
   },
   "multi": {
-    "selectPages": "Çoklu tekrar",
+    "selectPages": "Serbest tekrar",
     "cancel": "İptal",
     "hint": "Art arda tekrar etmek istediğin sayfalara dokun",
     "selectAll": "Tümü",
