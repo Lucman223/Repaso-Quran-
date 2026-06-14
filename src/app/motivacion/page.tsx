@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ArrowLeft, BookOpen, ScrollText, Quote, GraduationCap, Lightbulb } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
-import { CITAS, pick, type TipoCita } from "@/lib/contenido";
+import { CITAS, traduccion, type TipoCita } from "@/lib/contenido";
 
 const SECCIONES: { tipo: TipoCita; icon: React.ReactNode; tituloKey: string }[] = [
   { tipo: "ayet", icon: <BookOpen className="w-5 h-5" />, tituloKey: "motivacion.ayetler" },
@@ -61,9 +61,19 @@ export default function MotivacionPage() {
                     key={cita.id}
                     className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl p-4 shadow-sm"
                   >
+                    {cita.ar && (
+                      <p dir="rtl" className="font-amiri text-xl leading-loose text-[var(--color-primary)] mb-2">
+                        {cita.ar}
+                      </p>
+                    )}
                     <p className="text-sm leading-relaxed font-medium">
-                      “{pick(cita, locale)}”
+                      “{cita.tr}”
                     </p>
+                    {traduccion(cita, locale) && (
+                      <p className="text-sm leading-relaxed opacity-70 mt-1.5 italic">
+                        {traduccion(cita, locale)}
+                      </p>
+                    )}
                     <p className="text-xs opacity-50 mt-2">— {cita.kaynak}</p>
                   </div>
                 ))}

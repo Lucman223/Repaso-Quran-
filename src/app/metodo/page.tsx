@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ArrowLeft, GraduationCap, Lightbulb, BookMarked } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
-import { METODO_PASOS, TERMINOS, CONSEJOS, pick } from "@/lib/contenido";
+import { METODO_PASOS, TERMINOS, CONSEJOS, traduccion } from "@/lib/contenido";
 
 export default function MetodoPage() {
   const { t, locale } = useTranslation();
@@ -42,12 +42,20 @@ export default function MetodoPage() {
                     {i + 1}
                   </span>
                   <h3 className="font-bold text-sm">
-                    {pick({ tr: paso.tituloTr, es: paso.tituloEs }, locale)}
+                    {paso.tituloTr}
+                    {traduccion({ es: paso.tituloEs }, locale) && (
+                      <span className="font-normal opacity-60">
+                        {" · "}{traduccion({ es: paso.tituloEs }, locale)}
+                      </span>
+                    )}
                   </h3>
                 </div>
-                <p className="text-sm opacity-75 leading-relaxed pl-10">
-                  {pick(paso, locale)}
-                </p>
+                <p className="text-sm opacity-75 leading-relaxed pl-10">{paso.tr}</p>
+                {traduccion(paso, locale) && (
+                  <p className="text-sm opacity-60 leading-relaxed pl-10 mt-1 italic">
+                    {traduccion(paso, locale)}
+                  </p>
+                )}
               </div>
             ))}
           </div>
@@ -66,9 +74,16 @@ export default function MetodoPage() {
                 className="flex items-start gap-3 bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl p-3"
               >
                 <span className="font-bold text-sm text-[var(--color-primary)] shrink-0 min-w-[90px]">
-                  {pick({ tr: term.terminoTr, es: term.terminoEs }, locale)}
+                  {term.terminoTr}
                 </span>
-                <span className="text-sm opacity-75">{pick(term, locale)}</span>
+                <span className="text-sm opacity-75">
+                  {term.tr}
+                  {traduccion(term, locale) && (
+                    <span className="block opacity-70 italic mt-0.5">
+                      {traduccion(term, locale)}
+                    </span>
+                  )}
+                </span>
               </div>
             ))}
           </div>
@@ -89,7 +104,14 @@ export default function MetodoPage() {
                 <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[var(--color-gold)]/15 text-[var(--color-gold)] text-xs font-bold shrink-0">
                   {i + 1}
                 </span>
-                <p className="text-sm opacity-80 leading-relaxed">{pick(consejo, locale)}</p>
+                <div>
+                  <p className="text-sm opacity-80 leading-relaxed">{consejo.tr}</p>
+                  {traduccion(consejo, locale) && (
+                    <p className="text-sm opacity-60 leading-relaxed mt-1 italic">
+                      {traduccion(consejo, locale)}
+                    </p>
+                  )}
+                </div>
               </div>
             ))}
           </div>

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { BookOpen, Settings, Lock, Globe, BarChart2, Shield, LogOut, User, X, ListMusic, Sparkles, Star } from "lucide-react";
 import { useRepasaStore } from "@/store/useStore";
 import { useTranslation } from "@/hooks/useTranslation";
-import { citaDelDia, pick } from "@/lib/contenido";
+import { citaDelDia, traduccion } from "@/lib/contenido";
 import { GuidedTour, type TourStep } from "@/components/GuidedTour";
 import { signOut, onAuthStateChanged, type User as FirebaseUser } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -256,9 +256,19 @@ export default function Home() {
                 {t('motivacion.dailyLabel')}
               </span>
             </div>
+            {cita.ar && (
+              <p dir="rtl" className="font-amiri text-xl leading-loose text-[var(--color-primary)] mb-2">
+                {cita.ar}
+              </p>
+            )}
             <p className="text-sm leading-relaxed text-[var(--color-foreground)] font-medium">
-              “{pick(cita, locale)}”
+              “{cita.tr}”
             </p>
+            {traduccion(cita, locale) && (
+              <p className="text-sm leading-relaxed opacity-70 mt-1.5 italic">
+                {traduccion(cita, locale)}
+              </p>
+            )}
             <p className="text-xs opacity-50 mt-2">— {cita.kaynak}</p>
             <Star className="absolute -right-3 -bottom-3 w-20 h-20 opacity-[0.04] group-hover:opacity-[0.07] transition-opacity" />
           </Link>
