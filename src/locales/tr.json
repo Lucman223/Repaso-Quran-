@@ -113,6 +113,21 @@
     "imageMissing": "Görsel henüz mevcut değil (C{j} · T{v})",
     "pageAlt": "Mushaf sayfası {p}"
   },
+  "motivacion": {
+    "title": "Neden hafızlık?",
+    "dailyLabel": "Günün sözü",
+    "intro": "Hafızın fazileti ve Kur’ân’ı ezberlemek hakkında ayetler, hadisler ve büyüklerin sözleri.",
+    "ayetler": "Ayet-i Kerimeler",
+    "hadisler": "Hadis-i Şerifler",
+    "sozler": "Özlü Sözler"
+  },
+  "metodo": {
+    "title": "Osmanlı usulü",
+    "intro": "Bu uygulamanın takip ettiği tur sistemi böyle işler.",
+    "stepsTitle": "Nasıl işler",
+    "termsTitle": "Hafızlık tabirleri",
+    "tipsTitle": "Pratik tavsiyeler"
+  },
   "onboarding": {
     "skip": "Geç",
     "next": "İleri",

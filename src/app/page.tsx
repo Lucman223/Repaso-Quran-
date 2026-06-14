@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { BookOpen, Settings, Lock, Globe, BarChart2, Shield, LogOut, User, X, ListMusic } from "lucide-react";
+import { BookOpen, Settings, Lock, Globe, BarChart2, Shield, LogOut, User, X, ListMusic, Sparkles, Star } from "lucide-react";
 import { useRepasaStore } from "@/store/useStore";
 import { useTranslation } from "@/hooks/useTranslation";
+import { citaDelDia, pick } from "@/lib/contenido";
 import { GuidedTour, type TourStep } from "@/components/GuidedTour";
 import { signOut, onAuthStateChanged, type User as FirebaseUser } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -120,6 +121,9 @@ export default function Home() {
   );
   const totalVueltas = 30 * 20;
   const totalProgress = Math.round((totalCompleted / totalVueltas) * 100);
+
+  // Cita motivadora del día (depende de la fecha → solo en cliente)
+  const cita = citaDelDia();
 
   const vueltas = Array.from({ length: 20 }, (_, i) => {
     const vueltaNum = i + 1;
@@ -238,6 +242,26 @@ export default function Home() {
               <X className="w-4 h-4" />
             </button>
           </div>
+        )}
+
+        {/* Cita motivadora del día (hadiz, ayet o frase sobre la hifz) */}
+        {isMounted && (
+          <Link
+            href="/motivacion"
+            className="block bg-[var(--color-card)] border border-[var(--color-gold)]/30 rounded-2xl p-5 relative overflow-hidden hover:border-[var(--color-gold)]/60 transition-all group"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <Sparkles className="w-3.5 h-3.5 text-[var(--color-gold)]" />
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-gold)]">
+                {t('motivacion.dailyLabel')}
+              </span>
+            </div>
+            <p className="text-sm leading-relaxed text-[var(--color-foreground)] font-medium">
+              “{pick(cita, locale)}”
+            </p>
+            <p className="text-xs opacity-50 mt-2">— {cita.kaynak}</p>
+            <Star className="absolute -right-3 -bottom-3 w-20 h-20 opacity-[0.04] group-hover:opacity-[0.07] transition-opacity" />
+          </Link>
         )}
 
         {/* Progreso total */}

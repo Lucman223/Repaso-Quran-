@@ -113,6 +113,21 @@
     "imageMissing": "Imagen aún no disponible (J{j} · V{v})",
     "pageAlt": "Página {p} del Mushaf"
   },
+  "motivacion": {
+    "title": "Por qué memorizar",
+    "dailyLabel": "Cita del día",
+    "intro": "Versículos, hadices y palabras de los sabios sobre el mérito del háfiz y la memorización del Corán.",
+    "ayetler": "Versículos",
+    "hadisler": "Hadices",
+    "sozler": "Palabras de los sabios"
+  },
+  "metodo": {
+    "title": "El método otomano",
+    "intro": "Así funciona el sistema de vueltas que sigue esta app para memorizar el Corán.",
+    "stepsTitle": "Cómo funciona",
+    "termsTitle": "Términos del método",
+    "tipsTitle": "Consejos prácticos"
+  },
   "onboarding": {
     "skip": "Saltar",
     "next": "Siguiente",
