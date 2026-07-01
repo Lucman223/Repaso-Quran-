@@ -72,15 +72,17 @@ export default function LoginPage() {
     setSuccessMsg('');
 
     try {
+      const trimmedEmail = email.trim();
+      
       if (isSignUp) {
         // REGISTRO — Firebase deja la sesión iniciada automáticamente
-        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        const cred = await createUserWithEmailAndPassword(auth, trimmedEmail, password);
         if (name) {
           await updateProfile(cred.user, { displayName: name });
         }
       } else {
         // INICIO DE SESIÓN
-        await signInWithEmailAndPassword(auth, email, password);
+        await signInWithEmailAndPassword(auth, trimmedEmail, password);
       }
 
       setSuccessMsg(t.successLogin);
@@ -168,6 +170,9 @@ export default function LoginPage() {
                 placeholder="ejemplo@correo.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                autoCapitalize="none"
+                autoComplete="email"
+                autoCorrect="off"
                 className="w-full bg-[var(--color-background)] border border-[var(--color-border)] focus:border-[var(--color-primary)] rounded-xl px-4 py-3 text-[var(--color-foreground)] focus:outline-none transition-all duration-300 placeholder:opacity-50 font-medium shadow-sm"
               />
             </div>
