@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { BookOpen, Settings, Lock, Globe, BarChart2, Shield, LogOut, User, X, ListMusic, Sparkles, Star } from "lucide-react";
+import { BookOpen, Settings, Lock, Globe, BarChart2, Shield, LogOut, User, X, ListMusic, Sparkles, Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { useRepasaStore } from "@/store/useStore";
 import { useTranslation } from "@/hooks/useTranslation";
 import { citaDelDia, traduccion } from "@/lib/contenido";
@@ -30,10 +30,18 @@ export default function Home() {
   const [guestWarningDismissed, setGuestWarningDismissed] = useState(
     () => typeof window !== 'undefined' && localStorage.getItem('repaso-guest-warning-dismissed') === '1'
   );
+  
+  // Trigger para refrescar la cita motivacional dinámicamente
+  const [now, setNow] = useState(new Date());
+  // Offset manual para navegar entre las citas
+  const [citaOffset, setCitaOffset] = useState(0);
 
   useEffect(() => {
     setIsMounted(true);
     fetchAvailableVueltas();
+
+    // Actualizar `now` cada minuto para que la cita rote en vivo
+    const timer = setInterval(() => setNow(new Date()), 60000);
 
     // Escuchar el estado de auth (también se dispara al restaurar la sesión)
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -48,7 +56,10 @@ export default function Home() {
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      clearInterval(timer);
+    };
   }, [fetchAvailableVueltas, loadProgressFromServer]);
 
   const checkUserRole = async (token: string) => {
@@ -122,8 +133,8 @@ export default function Home() {
   const totalVueltas = 30 * 20;
   const totalProgress = Math.round((totalCompleted / totalVueltas) * 100);
 
-  // Cita motivadora del día (depende de la fecha → solo en cliente)
-  const cita = citaDelDia();
+  // Cita motivadora que cambia según la hora (se refresca cada minuto mediante 'now')
+  const cita = citaDelDia(now, citaOffset);
 
   const vueltas = Array.from({ length: 20 }, (_, i) => {
     const vueltaNum = i + 1;
@@ -220,7 +231,7 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="flex-1 p-4 pb-8 max-w-2xl mx-auto w-full space-y-6">
+      <main className="flex-1 p-4 md:p-8 pb-8 max-w-5xl mx-auto w-full space-y-8">
         {/* Aviso para usuarios sin cuenta: el progreso solo se guarda en este dispositivo */}
         {isMounted && !sessionUser && !guestWarningDismissed && (
           <div className="flex items-start gap-3 bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 rounded-xl p-4">
@@ -246,32 +257,58 @@ export default function Home() {
 
         {/* Cita motivadora del día (hadiz, ayet o frase sobre la hifz) */}
         {isMounted && (
-          <Link
-            href="/motivacion"
-            className="block bg-[var(--color-card)] border border-[var(--color-gold)]/30 rounded-2xl p-5 relative overflow-hidden hover:border-[var(--color-gold)]/60 transition-all group"
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="w-3.5 h-3.5 text-[var(--color-gold)]" />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-gold)]">
-                {t('motivacion.dailyLabel')}
-              </span>
+          <div className="relative group">
+            <Link
+              href="/motivacion"
+              className="block bg-[var(--color-card)] border border-[var(--color-gold)]/30 rounded-2xl p-5 relative overflow-hidden hover:border-[var(--color-gold)]/60 transition-all"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="w-3.5 h-3.5 text-[var(--color-gold)]" />
+                <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-gold)]">
+                  {t('motivacion.dailyLabel')}
+                </span>
+              </div>
+              {cita.ar && (
+                <p dir="rtl" className="font-amiri text-xl leading-loose text-[var(--color-primary)] mb-2">
+                  {cita.ar}
+                </p>
+              )}
+              <p className="text-sm leading-relaxed text-[var(--color-foreground)] font-medium pr-12">
+                “{cita.tr}”
+              </p>
+              {traduccion(cita, locale) && (
+                <p className="text-sm leading-relaxed opacity-70 mt-1.5 italic pr-12">
+                  {traduccion(cita, locale)}
+                </p>
+              )}
+              <p className="text-xs opacity-50 mt-2">— {cita.kaynak}</p>
+              <Star className="absolute -right-3 -bottom-3 w-20 h-20 opacity-[0.04] transition-opacity group-hover:opacity-[0.07]" />
+            </Link>
+            
+            {/* Controles de avance manual superpuestos */}
+            <div className="absolute top-4 right-4 flex gap-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCitaOffset((prev) => prev - 1);
+                }}
+                className="p-1.5 rounded-full bg-[var(--color-background)]/80 hover:bg-[var(--color-primary)]/10 text-[var(--color-primary)] transition-colors backdrop-blur-sm border border-[var(--color-border)]"
+                title="Mensaje anterior"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCitaOffset((prev) => prev + 1);
+                }}
+                className="p-1.5 rounded-full bg-[var(--color-background)]/80 hover:bg-[var(--color-primary)]/10 text-[var(--color-primary)] transition-colors backdrop-blur-sm border border-[var(--color-border)]"
+                title="Siguiente mensaje"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
-            {cita.ar && (
-              <p dir="rtl" className="font-amiri text-xl leading-loose text-[var(--color-primary)] mb-2">
-                {cita.ar}
-              </p>
-            )}
-            <p className="text-sm leading-relaxed text-[var(--color-foreground)] font-medium">
-              “{cita.tr}”
-            </p>
-            {traduccion(cita, locale) && (
-              <p className="text-sm leading-relaxed opacity-70 mt-1.5 italic">
-                {traduccion(cita, locale)}
-              </p>
-            )}
-            <p className="text-xs opacity-50 mt-2">— {cita.kaynak}</p>
-            <Star className="absolute -right-3 -bottom-3 w-20 h-20 opacity-[0.04] group-hover:opacity-[0.07] transition-opacity" />
-          </Link>
+          </div>
         )}
 
         {/* Progreso total */}
@@ -299,7 +336,7 @@ export default function Home() {
           <h2 className="text-base font-semibold opacity-70 mb-3 uppercase tracking-wider text-xs">
             {t('home.selectVuelta')}
           </h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             {vueltas.map((vuelta) => (
               <Link
                 href={vuelta.isAvailable ? `/vuelta/${vuelta.vueltaNum}` : "#"}

@@ -34,7 +34,9 @@ export default function RootLayout({
       className={`${inter.variable} ${amiri.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)]" suppressHydrationWarning>{children}</body>
+      <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)]" suppressHydrationWarning>
+        {children}
+      </body>
     </html>
   );
 }

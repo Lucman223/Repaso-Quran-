@@ -142,6 +142,7 @@ export default function PaginaQuran({
   const [loopCount, setLoopCount] = useState<number>(3);
   const [currentLoopIteration, setCurrentLoopIteration] = useState<number>(0);
   const [isLoopActive, setIsLoopActive] = useState(false);
+  const [isPagePlayActive, setIsPagePlayActive] = useState(false);
 
   // Confirmación de escucha
   const [confirmPopup, setConfirmPopup] = useState<{
@@ -154,6 +155,7 @@ export default function PaginaQuran({
   const stateRef = useRef({
     playingKey,
     isLoopActive,
+    isPagePlayActive,
     loopEnd,
     loopStart,
     loopCount,
@@ -168,6 +170,7 @@ export default function PaginaQuran({
     stateRef.current = {
       playingKey,
       isLoopActive,
+      isPagePlayActive,
       loopEnd,
       loopStart,
       loopCount,
@@ -280,6 +283,20 @@ export default function PaginaQuran({
               setIsLoopActive(false);
             }
           }
+        } else if (state.isPagePlayActive) {
+          const currentIndex = state.verses.findIndex((v) => v.verse_key === state.playingKey);
+          if (currentIndex !== -1 && currentIndex < state.verses.length - 1) {
+            // Reproducir la siguiente aleya de la página
+            playVerse(state.verses[currentIndex + 1].verse_key);
+          } else {
+            // Fin de la página
+            setIsPagePlayActive(false);
+            setConfirmPopup({
+              targetId: pageKey,
+              type: 'page',
+              reciter: state.reciter
+            });
+          }
         } else if (state.repeatMode) {
           audioRef.current?.play();
           setIsPlaying(true);
@@ -351,6 +368,7 @@ export default function PaginaQuran({
       setIsPlaying(false);
       setPlayingKey(null);
       setIsLoopActive(false);
+      setIsPagePlayActive(false);
     }
   };
 
@@ -363,9 +381,27 @@ export default function PaginaQuran({
       setIsPlaying(false);
       setPlayingKey(null);
     } else {
+      setIsPagePlayActive(false); // Cancel page play if active
       setIsLoopActive(true);
       setCurrentLoopIteration(0);
       playVerse(loopStart);
+    }
+  };
+
+  const togglePagePlay = () => {
+    if (isPagePlayActive) {
+      setIsPagePlayActive(false);
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      setIsPlaying(false);
+      setPlayingKey(null);
+    } else {
+      setIsLoopActive(false); // Cancel loop if active
+      if (verses.length > 0) {
+        setIsPagePlayActive(true);
+        playVerse(verses[0].verse_key);
+      }
     }
   };
 
@@ -467,7 +503,7 @@ export default function PaginaQuran({
 
         {selectionMode === "imagen" ? (
           <div className="w-full mx-auto max-w-lg premium-card rounded-xl overflow-hidden relative min-h-[500px]">
-            <div className="relative w-full aspect-[2/3] flex items-center justify-center p-2 bg-white/50">
+            <div className="relative w-full aspect-[2/3] flex flex-col items-center justify-start p-2 bg-white/50">
               <img
                 src={`/Coran/${vueltaId}V/P${localPageNumber}.png`}
                 alt={`Página ${localPageNumber} del Mushaf`}
@@ -486,6 +522,27 @@ export default function PaginaQuran({
                 }}
               />
             </div>
+            {/* Reproductor Secuencial de Página para Recitadores */}
+            {reciter !== 'krh' && verses.length > 0 && (
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-[var(--color-card)]/90 backdrop-blur border border-[var(--color-border)] shadow-lg rounded-full px-5 py-2 z-10">
+                <button
+                  onClick={togglePagePlay}
+                  className="flex items-center gap-2 text-sm font-semibold text-[var(--color-primary)] hover:scale-105 transition-transform"
+                >
+                  {isPagePlayActive ? (
+                    <>
+                      <Pause className="w-4 h-4 fill-[var(--color-primary)]" />
+                      <span>{t('juz.pause')}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Play className="w-4 h-4 fill-[var(--color-primary)]" />
+                      <span>Reproducir Página</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           <div className="flex flex-col">

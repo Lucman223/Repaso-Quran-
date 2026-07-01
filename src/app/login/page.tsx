@@ -89,7 +89,12 @@ export default function LoginPage() {
       const token = await getAccessToken();
       if (token) {
         await fetch('/api/auth/me', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          method: isSignUp ? 'POST' : 'GET',
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: isSignUp ? JSON.stringify({ name }) : undefined
         });
       }
 
@@ -118,32 +123,28 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-radial from-slate-900 via-slate-950 to-black px-4 text-white">
-      {/* Círculos decorativos con gradientes */}
-      <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-
+    <div className="min-h-screen flex flex-col items-center justify-center premium-gradient px-4 text-[var(--color-foreground)]">
       <div className="w-full max-w-md z-10">
         {/* Cabecera del formulario */}
         <div className="text-center mb-8">
-          <h1 className="text-6xl font-extrabold bg-gradient-to-r from-emerald-400 to-teal-200 bg-clip-text text-transparent drop-shadow-md select-none tracking-wider mb-2 font-serif">
+          <h1 className="text-6xl font-extrabold text-[var(--color-primary)] drop-shadow-sm select-none tracking-wider mb-2 font-serif">
             {t.title}
           </h1>
-          <p className="text-slate-400 font-medium tracking-wide">
+          <p className="opacity-70 font-medium tracking-wide">
             {t.subtitle}
           </p>
         </div>
 
         {/* Tarjeta del formulario */}
-        <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-800/80 p-8 rounded-2xl shadow-2xl">
-          <h2 className="text-2xl font-bold mb-6 text-slate-100 text-center">
+        <div className="premium-card p-8 rounded-2xl shadow-xl relative">
+          <h2 className="text-2xl font-bold mb-6 text-[var(--color-primary)] text-center">
             {isSignUp ? t.register : t.login}
           </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5 relative z-10">
             {isSignUp && (
               <div>
-                <label className="block text-sm font-semibold text-slate-300 mb-2 select-none">
+                <label className="block text-sm font-semibold opacity-80 mb-2 select-none">
                   {t.name}
                 </label>
                 <input
@@ -152,13 +153,13 @@ export default function LoginPage() {
                   placeholder="Tu nombre"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-slate-950/60 border border-slate-800 focus:border-emerald-500/60 rounded-xl px-4 py-3 text-white focus:outline-none transition-all duration-300 placeholder:text-slate-600 font-medium"
+                  className="w-full bg-[var(--color-background)] border border-[var(--color-border)] focus:border-[var(--color-primary)] rounded-xl px-4 py-3 text-[var(--color-foreground)] focus:outline-none transition-all duration-300 placeholder:opacity-50 font-medium shadow-sm"
                 />
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-semibold text-slate-300 mb-2 select-none">
+              <label className="block text-sm font-semibold opacity-80 mb-2 select-none">
                 {t.email}
               </label>
               <input
@@ -167,12 +168,12 @@ export default function LoginPage() {
                 placeholder="ejemplo@correo.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-slate-950/60 border border-slate-800 focus:border-emerald-500/60 rounded-xl px-4 py-3 text-white focus:outline-none transition-all duration-300 placeholder:text-slate-600 font-medium"
+                className="w-full bg-[var(--color-background)] border border-[var(--color-border)] focus:border-[var(--color-primary)] rounded-xl px-4 py-3 text-[var(--color-foreground)] focus:outline-none transition-all duration-300 placeholder:opacity-50 font-medium shadow-sm"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-300 mb-2 select-none">
+              <label className="block text-sm font-semibold opacity-80 mb-2 select-none">
                 {t.password}
               </label>
               <input
@@ -181,18 +182,18 @@ export default function LoginPage() {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-slate-950/60 border border-slate-800 focus:border-emerald-500/60 rounded-xl px-4 py-3 text-white focus:outline-none transition-all duration-300 placeholder:text-slate-600 font-medium"
+                className="w-full bg-[var(--color-background)] border border-[var(--color-border)] focus:border-[var(--color-primary)] rounded-xl px-4 py-3 text-[var(--color-foreground)] focus:outline-none transition-all duration-300 placeholder:opacity-50 font-medium shadow-sm"
               />
             </div>
 
             {errorMsg && (
-              <div className="bg-rose-500/10 border border-rose-500/30 text-rose-300 px-4 py-3 rounded-xl text-sm font-medium">
+              <div className="bg-red-500/10 border border-red-500/30 text-red-600 px-4 py-3 rounded-xl text-sm font-medium">
                 {errorMsg}
               </div>
             )}
 
             {successMsg && (
-              <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-4 py-3 rounded-xl text-sm font-medium">
+              <div className="bg-green-500/10 border border-green-500/30 text-green-700 px-4 py-3 rounded-xl text-sm font-medium">
                 {successMsg}
               </div>
             )}
@@ -200,14 +201,14 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 active:scale-[0.98] text-slate-950 font-bold rounded-xl shadow-lg shadow-emerald-500/10 transition-all duration-300 disabled:opacity-50 cursor-pointer"
+              className="w-full py-3.5 bg-[var(--color-primary)] hover:opacity-90 active:scale-[0.98] text-white font-bold rounded-xl shadow-lg shadow-[var(--color-primary)]/30 transition-all duration-300 disabled:opacity-50 cursor-pointer"
             >
               {loading ? t.loading : (isSignUp ? t.register : t.login)}
             </button>
           </form>
 
           {/* Toggle entre login y registro */}
-          <div className="mt-6 text-center">
+          <div className="mt-6 text-center relative z-10">
             <button
               type="button"
               onClick={() => {
@@ -215,7 +216,7 @@ export default function LoginPage() {
                 setErrorMsg('');
                 setSuccessMsg('');
               }}
-              className="text-sm font-semibold text-emerald-400 hover:text-emerald-300 hover:underline transition-all duration-300 cursor-pointer"
+              className="text-sm font-semibold text-[var(--color-primary)] hover:opacity-80 hover:underline transition-all duration-300 cursor-pointer"
             >
               {isSignUp ? t.haveAccount : t.noAccount}
             </button>

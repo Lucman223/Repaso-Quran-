@@ -263,9 +263,28 @@ export const TERMINOS: Termino[] = [
   },
 ];
 
-// Cita "del día": determinista por fecha, para que toda la sesión vea la misma
-// y cambie cada día. No aleatoria pura (evita parpadeos entre renders).
-export function citaDelDia(fecha = new Date()): Cita {
-  const dias = Math.floor(fecha.getTime() / 86_400_000);
-  return CITAS[dias % CITAS.length];
+// Cita "del día": rota cada 3 minutos, alternando entre aleya, hadiz y frase.
+// Permite un offset para avance manual.
+export function citaDelDia(fecha = new Date(), offset = 0): Cita {
+  // 3 minutos = 180,000 milisegundos
+  const intervalId = Math.floor(fecha.getTime() / 180_000) + offset;
+  
+  // Para evitar índices negativos al restar en el offset, sumamos un múltiplo muy grande antes del módulo:
+  const safeIntervalId = intervalId < 0 ? intervalId + 3000000 : intervalId;
+  
+  // El orden de rotación será: 0 -> ayet, 1 -> hadis, 2 -> soz
+  const tipos: TipoCita[] = ["ayet", "hadis", "soz"];
+  const tipo = tipos[safeIntervalId % 3];
+
+  // Filtrar citas por el tipo correspondiente
+  const citasDelTipo = CITAS.filter(c => c.tipo === tipo);
+  
+  if (citasDelTipo.length > 0) {
+    // Para que cada tipo avance secuencialmente, dividimos el ID entre 3
+    const subIndex = Math.floor(safeIntervalId / 3) % citasDelTipo.length;
+    return citasDelTipo[subIndex];
+  }
+  
+  // Fallback
+  return CITAS[safeIntervalId % CITAS.length];
 }

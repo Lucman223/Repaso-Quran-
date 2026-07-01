@@ -104,9 +104,9 @@ export default function AdminPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white font-medium">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--color-background)] text-[var(--color-foreground)] font-medium">
         <div className="text-center space-y-4">
-          <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto" />
+          <div className="w-12 h-12 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin mx-auto" />
           <p>{t.loading}</p>
         </div>
       </div>
@@ -115,14 +115,14 @@ export default function AdminPage() {
 
   if (errorMsg) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 text-white px-4 text-center">
-        <div className="bg-rose-500/10 border border-rose-500/30 text-rose-300 px-6 py-5 rounded-2xl max-w-md shadow-xl mb-6">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--color-background)] text-[var(--color-foreground)] px-4 text-center">
+        <div className="bg-red-500/10 border border-red-500/30 text-red-600 px-6 py-5 rounded-2xl max-w-md shadow-xl mb-6">
           <p className="font-bold text-lg mb-2">⚠️ Error</p>
           <p>{errorMsg}</p>
         </div>
         <button
           onClick={() => router.push('/')}
-          className="px-6 py-3 bg-slate-900 border border-slate-800 hover:bg-slate-800 active:scale-[0.98] rounded-xl font-semibold transition-all cursor-pointer"
+          className="px-6 py-3 premium-card hover:border-[var(--color-primary)] active:scale-[0.98] rounded-xl font-semibold transition-all cursor-pointer"
         >
           {t.back}
         </button>
@@ -131,22 +131,19 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-6 md:p-12 relative">
-      <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
-
+    <div className="min-h-screen premium-gradient text-[var(--color-foreground)] p-6 md:p-12 relative">
       <div className="max-w-6xl mx-auto z-10 relative">
         {/* Cabecera */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b border-slate-900 pb-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 border-b border-[var(--color-border)] pb-6">
           <div>
-            <h1 className="text-3xl font-extrabold bg-gradient-to-r from-emerald-400 to-teal-200 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold text-[var(--color-primary)] font-amiri tracking-wider">
               {t.title}
             </h1>
-            <p className="text-slate-400 mt-1">{t.subtitle}</p>
+            <p className="opacity-60 font-medium mt-1">{t.subtitle}</p>
           </div>
           <button
             onClick={() => router.push('/')}
-            className="self-start md:self-auto px-5 py-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-sm font-semibold transition-all cursor-pointer"
+            className="self-start md:self-auto px-5 py-2.5 bg-[var(--color-card)] hover:border-[var(--color-primary)] border border-[var(--color-border)] rounded-xl text-sm font-semibold transition-all cursor-pointer shadow-sm"
           >
             ← {t.back}
           </button>
@@ -159,26 +156,26 @@ export default function AdminPage() {
             placeholder={t.searchPlaceholder}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full max-w-md bg-slate-900/60 border border-slate-800 focus:border-emerald-500/60 rounded-xl px-4 py-3 text-white focus:outline-none transition-all placeholder:text-slate-600 font-medium"
+            className="w-full max-w-md bg-[var(--color-card)] border border-[var(--color-border)] focus:border-[var(--color-primary)] rounded-xl px-4 py-3 text-[var(--color-foreground)] focus:outline-none transition-all placeholder:opacity-50 font-medium shadow-sm"
           />
         </div>
 
         {/* Tabla/Lista de usuarios */}
-        <div className="bg-slate-900/40 backdrop-blur-xl border border-slate-800/80 rounded-2xl overflow-hidden shadow-2xl">
+        <div className="premium-card rounded-2xl overflow-hidden relative">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-800 bg-slate-900/80 text-slate-400 text-sm font-semibold select-none">
+                <tr className="border-b border-[var(--color-border)] bg-[var(--color-primary)]/5 opacity-80 text-sm font-semibold select-none">
                   <th className="p-4 pl-6">{t.colUser}</th>
                   <th className="p-4">{t.colRole}</th>
                   <th className="p-4 text-center">{t.colCompleted}</th>
                   <th className="p-4 pr-6">{t.colLastActive}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/50">
+              <tbody className="divide-y divide-[var(--color-border)]/50">
                 {filteredUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="p-8 text-center text-slate-500 font-medium">
+                    <td colSpan={4} className="p-8 text-center opacity-60 font-medium">
                       {t.noUsers}
                     </td>
                   </tr>
@@ -191,27 +188,27 @@ export default function AdminPage() {
                     });
 
                     return (
-                      <tr key={user.id} className="hover:bg-slate-900/20 transition-colors">
+                      <tr key={user.id} className="hover:bg-[var(--color-primary)]/5 transition-colors">
                         <td className="p-4 pl-6">
-                          <div className="font-semibold text-slate-100">{user.name || 'Sin nombre'}</div>
-                          <div className="text-xs text-slate-500 font-medium">{user.email}</div>
+                          <div className="font-semibold">{user.name || 'Sin nombre'}</div>
+                          <div className="text-xs opacity-60 font-medium">{user.email}</div>
                         </td>
                         <td className="p-4">
                           <span className={`inline-block px-2.5 py-1 text-xs font-bold rounded-full ${
                             user.role.toLowerCase() === 'admin' 
-                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
-                              : 'bg-slate-800 text-slate-400 border border-slate-700/50'
+                              ? 'bg-[var(--color-primary)] text-white shadow-sm' 
+                              : 'bg-[var(--color-background)] opacity-60 border border-[var(--color-border)]'
                           }`}>
                             {user.role.toUpperCase()}
                           </span>
                         </td>
                         <td className="p-4 text-center">
-                          <div className="font-bold text-emerald-400 text-lg">
+                          <div className="font-bold text-[var(--color-primary)] text-lg">
                             {completedCount}
                           </div>
-                          <div className="text-xs text-slate-500">{t.statsCompleted}</div>
+                          <div className="text-xs opacity-60">{t.statsCompleted}</div>
                         </td>
-                        <td className="p-4 pr-6 text-sm text-slate-400">
+                        <td className="p-4 pr-6 text-sm opacity-60 font-medium">
                           {lastActive}
                         </td>
                       </tr>
