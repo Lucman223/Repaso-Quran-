@@ -286,7 +286,7 @@ export default function Home() {
             </Link>
             
             {/* Controles de avance manual superpuestos */}
-            <div className="absolute top-4 right-4 flex gap-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="absolute top-4 right-4 flex gap-1 z-10 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
               <button
                 onClick={(e) => {
                   e.preventDefault();
