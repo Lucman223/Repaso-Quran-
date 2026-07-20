@@ -5,12 +5,13 @@ export interface Verse {
   text_uthmani: string;
 }
 
-export type Reciter = 'krh' | 'husary' | 'minshawi';
+export type Reciter = 'krh' | 'husary' | 'minshawi' | 'maher';
 
 export const RECITERS = {
   krh: { nameAr: 'ك. ر. هـ', nameEs: 'K.R.H.' },
   husary: { nameAr: 'محمود خليل الحصري', nameEs: 'Al-Husary' },
   minshawi: { nameAr: 'محمد صديق المنشاوي', nameEs: 'Minshawi (Mujawwad)' },
+  maher: { nameAr: 'ماهر المعيقلي', nameEs: 'Maher Al-Muaiqly' },
 } as const satisfies Record<Reciter, { nameAr: string; nameEs: string }>;
 
 export const JUZ_STARTING_PAGES = [
@@ -81,6 +82,9 @@ export function getAyahAudioUrl(
   }
   if (reciter === 'husary') {
     return `https://everyayah.com/data/Husary_128kbps/${file}.mp3`;
+  }
+  if (reciter === 'maher') {
+    return `https://everyayah.com/data/MaherAlMuaiqly128kbps/${file}.mp3`;
   }
   return `https://everyayah.com/data/Minshawy_Mujawwad_192kbps/${file}.mp3`;
 }

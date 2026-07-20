@@ -139,7 +139,7 @@
     "step2Title": "Tur Sistemi",
     "step2Desc": "Her birinde 30 Cüz bulunan 20 tur vardır. 1. Turdan başla ve ilerle. Görselleri olan turlar otomatik olarak açılır.",
     "step3Title": "Ayet Ayet Dinle",
-    "step3Desc": "3 okuyucu arasından seç: Al-Husary, Minshawi veya K.R.H. (kendi sesini). Tek tek dinlemek için 'Dinle' butonuna bas.",
+    "step3Desc": "4 okuyucu arasından seç: Al-Husary, Minshawi, Maher Al-Muaiqly veya K.R.H. (kendi sesini). Tek tek dinlemek için 'Dinle' butonuna bas.",
     "step4Title": "Ezberleme Döngüsü",
     "step4Desc": "Bir ayet aralığı (başlangıç – bitiş) ve tekrar sayısı seç. Oynatıcı ezberlemenize yardımcı olmak için aralığı otomatik tekrar eder.",
     "step5Title": "Oku ve Tekrar Et",
@@ -174,7 +174,7 @@
     },
     "juz": {
       "reciterTitle": "Okuyucu seçin",
-      "reciterDesc": "Al-Husary, Minshawi veya K.R.H. (kendi kaydınız) arasından seçin. Okuyucu değiştiğinde ses sıfırlanır. K.R.H. tüm sayfayı tek seferde çalar.",
+      "reciterDesc": "Al-Husary, Minshawi, Maher Al-Muaiqly veya K.R.H. (kendi kaydınız) arasından seçin. Okuyucu değiştiğinde ses sıfırlanır. K.R.H. tüm sayfayı tek seferde çalar.",
       "modeTitle": "Görsel / Metin görünümü",
       "modeDesc": "Mushaf sayfasını görsel olarak mı yoksa etkileşimli Arapça metin olarak mı görmek istediğinizi seçin. Metin modunda ayet ayet dinleyebilirsiniz.",
       "repeatTitle": "Tekrar modu",

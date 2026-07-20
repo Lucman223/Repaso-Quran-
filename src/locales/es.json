@@ -139,7 +139,7 @@
     "step2Title": "Sistema de Vueltas",
     "step2Desc": "Hay 20 vueltas con 30 Juzs cada una. Empieza por la Vuelta 1 y avanza progresivamente. Las vueltas con imágenes aparecen desbloqueadas automáticamente.",
     "step3Title": "Escucha por Aleyas",
-    "step3Desc": "Elige entre 3 recitadores: Al-Husary, Minshawi o K.R.H. (tu propia recitación). Pulsa 'Escuchar' en cada aleya para reproducirla individualmente.",
+    "step3Desc": "Elige entre 4 recitadores: Al-Husary, Minshawi, Maher Al-Muaiqly o K.R.H. (tu propia recitación). Pulsa 'Escuchar' en cada aleya para reproducirla individualmente.",
     "step4Title": "Bucle de Memorización",
     "step4Desc": "Selecciona un rango de aleyas (desde – hasta) y el número de repeticiones. El reproductor repetirá automáticamente ese rango para ayudarte a memorizar.",
     "step5Title": "Recita y Repasa",
@@ -174,7 +174,7 @@
     },
     "juz": {
       "reciterTitle": "Elige el recitador",
-      "reciterDesc": "Selecciona entre Al-Husary, Minshawi o K.R.H. (tu propia grabación). Al cambiar de recitador el audio se reinicia. K.R.H. reproduce el audio completo de la página.",
+      "reciterDesc": "Selecciona entre Al-Husary, Minshawi, Maher Al-Muaiqly o K.R.H. (tu propia grabación). Al cambiar de recitador el audio se reinicia. K.R.H. reproduce el audio completo de la página.",
       "modeTitle": "Vista Imagen / Texto",
       "modeDesc": "Cambia entre ver la página del Mushaf como imagen o como texto árabe interactivo. En modo Texto puedes escuchar aleya por aleya.",
       "repeatTitle": "Modo de Repetición",
