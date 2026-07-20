@@ -56,11 +56,13 @@ export default function LoginPage() {
     }
   }[locale] || { es: {}, tr: {} }.es;
 
-  // Si ya está logueado, redirigir a inicio
+  // Si ya está logueado, redirigir
   useEffect(() => {
     auth.authStateReady().then(() => {
       if (auth.currentUser) {
-        router.push('/');
+        const params = new URLSearchParams(window.location.search);
+        const redirectTo = params.get('redirect') || '/';
+        router.push(redirectTo);
       }
     });
   }, [router]);
@@ -103,8 +105,10 @@ export default function LoginPage() {
       // Sincronizar el progreso desde el servidor (fusiona con el local)
       await useRepasaStore.getState().loadProgressFromServer();
 
-      // Redirigir al inicio
-      router.push('/');
+      // Redirigir al inicio o a la ruta redireccionada
+      const params = new URLSearchParams(window.location.search);
+      const redirectTo = params.get('redirect') || '/';
+      router.push(redirectTo);
       router.refresh();
     } catch (err: unknown) {
       console.error(err);

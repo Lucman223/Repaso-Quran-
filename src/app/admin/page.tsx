@@ -60,8 +60,7 @@ export default function AdminPage() {
       try {
         const token = await getAccessToken();
         if (!token) {
-          setErrorMsg(t.unauthorized);
-          setLoading(false);
+          router.push('/login?redirect=/admin');
           return;
         }
 
