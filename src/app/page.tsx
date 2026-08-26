@@ -115,12 +115,12 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-[var(--color-background)]">
-      <header className="sticky top-0 z-10 flex items-center justify-between p-5 bg-[var(--color-background)]/90 backdrop-blur border-b border-[var(--color-border)]">
+      <header className="sticky top-0 z-10 flex items-center justify-between p-5 bg-[var(--color-background)]/80 backdrop-blur-lg border-b border-[var(--color-border)]">
         <div>
           <h1 className="text-3xl font-bold text-[var(--color-primary)] font-amiri tracking-wider">
             {t('home.arabicTitle')}
           </h1>
-          <p className="text-[10px] font-semibold opacity-50 uppercase tracking-widest mt-0.5">
+          <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mt-0.5">
             Mi Espacio Personal
           </p>
         </div>
@@ -168,17 +168,17 @@ export default function Home() {
         
         {/* Recordatorio de repasos (Nuevo Sistema) */}
         {isMounted && recommendedPages.length > 0 && (
-          <div className="bg-amber-600/10 border border-amber-600/30 rounded-2xl p-5 shadow-sm">
-            <div className="flex items-center gap-2 mb-4 text-amber-700 dark:text-amber-400">
+          <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 shadow-sm">
+            <div className="flex items-center gap-2 mb-4 text-emerald-700">
               <CalendarClock className="w-5 h-5" />
               <h2 className="font-bold text-sm uppercase tracking-wider">Tu Repaso de Hoy</h2>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-3">
               {recommendedPages.map(page => (
                 <Link 
                   key={page} 
                   href={getPageLink(page)}
-                  className="px-4 py-2 bg-[var(--color-card)] border border-[var(--color-border)] hover:border-[var(--color-primary)] rounded-lg text-sm font-semibold transition-colors"
+                  className="px-5 py-2.5 bg-white border border-emerald-200 hover:border-emerald-500 hover:shadow-md rounded-xl text-sm font-semibold text-emerald-800 transition-all duration-200"
                 >
                   Pág {page}
                 </Link>
@@ -192,11 +192,11 @@ export default function Home() {
           <div className="relative group">
             <Link
               href="/motivacion"
-              className="block bg-[var(--color-card)] border border-[var(--color-gold)]/30 rounded-2xl p-5 relative overflow-hidden hover:border-[var(--color-gold)]/60 transition-all"
+              className="block bg-white border border-slate-200 rounded-2xl p-6 relative overflow-hidden hover:border-emerald-300 hover:shadow-md transition-all duration-300"
             >
-              <div className="flex items-center gap-2 mb-2">
-                <Sparkles className="w-3.5 h-3.5 text-[var(--color-gold)]" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-gold)]">
+              <div className="flex items-center gap-2 mb-3">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
+                <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600">
                   {t('motivacion.dailyLabel')}
                 </span>
               </div>
@@ -244,23 +244,23 @@ export default function Home() {
         )}
 
         {/* Progreso total */}
-        <div id="tour-progress" className="bg-[var(--color-primary)] text-white rounded-2xl p-5 shadow-lg relative overflow-hidden">
+        <div id="tour-progress" className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white rounded-2xl p-6 shadow-lg relative overflow-hidden">
           <div className="relative z-10">
-            <p className="text-sm opacity-80 font-medium">{t('home.totalProgress')}</p>
-            <div className="flex items-end gap-3 mt-1">
+            <p className="text-sm text-emerald-50 font-medium">{t('home.totalProgress')}</p>
+            <div className="flex items-end gap-3 mt-1 mb-4">
               <span className="text-4xl font-bold">{totalProgress}%</span>
-              <span className="text-sm opacity-70 mb-1">
+              <span className="text-sm text-emerald-100 mb-1">
                 {totalCompleted}/{totalVueltas} {t('home.vueltas')}
               </span>
             </div>
-            <div className="w-full bg-white/20 h-1.5 rounded-full mt-3 overflow-hidden">
+            <div className="w-full bg-black/10 h-2 rounded-full overflow-hidden">
               <div
-                className="bg-white h-full rounded-full transition-all duration-500"
+                className="bg-white h-full rounded-full transition-all duration-700 ease-out"
                 style={{ width: `${totalProgress}%` }}
               />
             </div>
           </div>
-          <BookOpen className="absolute -right-4 -bottom-4 w-28 h-28 opacity-10" />
+          <BookOpen className="absolute -right-4 -bottom-4 w-32 h-32 opacity-10 rotate-12" />
         </div>
 
         {/* Grid de Vueltas */}
@@ -273,14 +273,14 @@ export default function Home() {
               <Link
                 href={vuelta.isAvailable ? `/vuelta/${vuelta.vueltaNum}` : "#"}
                 key={vuelta.vueltaNum}
-                className={`bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl p-4 flex flex-col items-center gap-2 transition-all group ${
+                className={`bg-white border border-slate-200 rounded-2xl p-5 flex flex-col items-center gap-2 transition-all duration-200 group ${
                   vuelta.isAvailable
-                    ? "hover:border-[var(--color-primary)] active:scale-95"
-                    : "opacity-40 cursor-default"
+                    ? "hover:border-emerald-400 hover:shadow-md hover:-translate-y-1"
+                    : "opacity-50 cursor-default bg-slate-50"
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold text-[var(--color-primary)] group-hover:scale-105 transition-transform">
+                  <span className="text-sm font-bold text-slate-800 group-hover:text-emerald-600 transition-colors">
                     {t('home.vuelta')} {vuelta.vueltaNum}
                   </span>
                   {!vuelta.isAvailable && <Lock className="w-3.5 h-3.5 opacity-55" />}
