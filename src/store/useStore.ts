@@ -1,12 +1,11 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Reciter, Verse } from '@/lib/quran';
-import { getAccessToken } from '@/lib/firebase';
 
 type PageStats = Record<string, { listenCount: number; recordCount: number }>;
 type ListenStats = Record<string, { type: 'page' | 'ayah'; counts: Record<string, number> }>;
 
-// Forma del estado guardado en localStorage (debe coincidir con partialize)
+// Forma del estado guardado en localStorage
 type PersistedState = {
   completedVueltas: Record<string, number[]>;
   pageStats: PageStats;
@@ -17,19 +16,11 @@ type PersistedState = {
   locale: 'es' | 'tr';
   hasSeenHomeTour: boolean;
   hasSeenJuzTour: boolean;
+  // NUEVO: Historial de estudio de páginas. Mapea número de página absoluto a fechas de estudio (YYYY-MM-DD)
+  pageStudyHistory: Record<number, string[]>;
 };
 
-interface RepasaState {
-  completedVueltas: Record<string, number[]>;
-  pageStats: PageStats;
-  listenStats: ListenStats;
-  reciter: Reciter;
-  pageCache: Record<number, Verse[]>;
-  availableVueltas: number[];
-  locale: 'es' | 'tr';
-  hasSeenHomeTour: boolean;
-  hasSeenJuzTour: boolean;
-
+interface RepasaState extends PersistedState {
   markVueltaCompleted: (juzId: string, vueltaId: number) => void;
   toggleVueltaCompleted: (juzId: string, vueltaId: number) => void;
   incrementListen: (pageKey: string) => void;
@@ -38,68 +29,12 @@ interface RepasaState {
   setReciter: (reciter: Reciter) => void;
   cachePageVerses: (absolutePage: number, verses: Verse[]) => void;
   fetchAvailableVueltas: () => Promise<void>;
-  loadProgressFromServer: () => Promise<void>;
   setLocale: (locale: 'es' | 'tr') => void;
   markHomeTourSeen: () => void;
   markJuzTourSeen: () => void;
   resetTours: () => void;
+  markPageStudied: (absolutePage: number) => void;
 }
-
-const syncToServer = async (state: Pick<RepasaState, 'completedVueltas' | 'pageStats' | 'listenStats'>) => {
-  if (typeof window === 'undefined') return;
-  const token = await getAccessToken();
-  if (!token) return;
-  try {
-    await fetch('/api/progress', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({
-        completedVueltas: state.completedVueltas,
-        pageStats: state.pageStats,
-        listenStats: state.listenStats
-      })
-    });
-  } catch (e) {
-    console.error("Error al sincronizar progreso con el servidor:", e);
-  }
-};
-
-// Fusiona el progreso remoto con el local sin perder nada: unión de vueltas
-// completadas y máximo de cada contador (lo hecho offline no se pisa).
-const mergeProgress = (
-  local: Pick<RepasaState, 'completedVueltas' | 'pageStats' | 'listenStats'>,
-  remote: { completedVueltas?: Record<string, number[]>; pageStats?: PageStats; listenStats?: ListenStats }
-) => {
-  const completedVueltas: Record<string, number[]> = { ...local.completedVueltas };
-  for (const [juzId, vueltas] of Object.entries(remote.completedVueltas || {})) {
-    if (!Array.isArray(vueltas)) continue;
-    completedVueltas[juzId] = Array.from(new Set([...(completedVueltas[juzId] || []), ...vueltas]));
-  }
-
-  const pageStats: PageStats = { ...local.pageStats };
-  for (const [key, stats] of Object.entries(remote.pageStats || {})) {
-    const cur = pageStats[key] || { listenCount: 0, recordCount: 0 };
-    pageStats[key] = {
-      listenCount: Math.max(cur.listenCount, stats?.listenCount || 0),
-      recordCount: Math.max(cur.recordCount, stats?.recordCount || 0),
-    };
-  }
-
-  const listenStats: ListenStats = { ...local.listenStats };
-  for (const [targetId, remoteTarget] of Object.entries(remote.listenStats || {})) {
-    const curTarget = listenStats[targetId] || { type: remoteTarget.type, counts: {} };
-    const counts: Record<string, number> = { ...curTarget.counts };
-    for (const [reciter, count] of Object.entries(remoteTarget.counts || {})) {
-      counts[reciter] = Math.max(counts[reciter] || 0, count || 0);
-    }
-    listenStats[targetId] = { ...curTarget, counts };
-  }
-
-  return { completedVueltas, pageStats, listenStats };
-};
 
 export const useRepasaStore = create<RepasaState>()(
   persist(
@@ -113,48 +48,43 @@ export const useRepasaStore = create<RepasaState>()(
       locale: 'tr' as const,
       hasSeenHomeTour: false,
       hasSeenJuzTour: false,
+      pageStudyHistory: {},
 
       markVueltaCompleted: (juzId, vueltaId) => set((state) => {
         const currentJuz = state.completedVueltas[juzId] || [];
         if (currentJuz.includes(vueltaId)) return state;
-        const updated = {
+        return {
           completedVueltas: {
             ...state.completedVueltas,
             [juzId]: [...currentJuz, vueltaId],
           },
         };
-        setTimeout(() => syncToServer({ ...state, ...updated }), 0);
-        return updated;
       }),
 
       toggleVueltaCompleted: (juzId, vueltaId) => set((state) => {
         const currentJuz = state.completedVueltas[juzId] || [];
-        const updated = {
+        return {
           completedVueltas: {
             ...state.completedVueltas,
             [juzId]: currentJuz.includes(vueltaId)
               ? currentJuz.filter((v) => v !== vueltaId)
               : [...currentJuz, vueltaId],
-          },
+        },
         };
-        setTimeout(() => syncToServer({ ...state, ...updated }), 0);
-        return updated;
       }),
 
       incrementListen: (pageKey) => set((state) => {
         const cur = state.pageStats[pageKey] || { listenCount: 0, recordCount: 0 };
-        const updated = {
+        return {
           pageStats: { ...state.pageStats, [pageKey]: { ...cur, listenCount: cur.listenCount + 1 } },
         };
-        setTimeout(() => syncToServer({ ...state, ...updated }), 0);
-        return updated;
       }),
 
       incrementListenDetailed: (targetId, type, reciter) => set((state) => {
         const listenStats = state.listenStats || {};
         const currentTarget = listenStats[targetId] || { type, counts: {} };
         const currentCount = currentTarget.counts[reciter] || 0;
-        const updated = {
+        return {
           listenStats: {
             ...listenStats,
             [targetId]: {
@@ -166,17 +96,13 @@ export const useRepasaStore = create<RepasaState>()(
             },
           },
         };
-        setTimeout(() => syncToServer({ ...state, ...updated }), 0);
-        return updated;
       }),
 
       incrementRecord: (pageKey) => set((state) => {
         const cur = state.pageStats[pageKey] || { listenCount: 0, recordCount: 0 };
-        const updated = {
+        return {
           pageStats: { ...state.pageStats, [pageKey]: { ...cur, recordCount: cur.recordCount + 1 } },
         };
-        setTimeout(() => syncToServer({ ...state, ...updated }), 0);
-        return updated;
       }),
 
       setReciter: (reciter) => set({ reciter }),
@@ -185,36 +111,10 @@ export const useRepasaStore = create<RepasaState>()(
         pageCache: { ...state.pageCache, [absolutePage]: verses },
       })),
 
-      loadProgressFromServer: async () => {
-        const token = await getAccessToken();
-        if (!token) return;
-        try {
-          const res = await fetch('/api/progress', {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          if (!res.ok) return;
-          const remote = await res.json();
-          const merged = mergeProgress(get(), remote);
-          set(merged);
-          // Subir el resultado fusionado para que el servidor también quede al día
-          syncToServer(merged);
-        } catch (e) {
-          console.error("Error al cargar el progreso desde el servidor:", e);
-        }
-      },
-
       fetchAvailableVueltas: async () => {
-        try {
-          const res = await fetch('/api/vueltas');
-          if (res.ok) {
-            const data = await res.json();
-            if (Array.isArray(data) && data.length > 0) {
-              set({ availableVueltas: data });
-            }
-          }
-        } catch (e) {
-          console.error("Error al obtener las vueltas desde la API:", e);
-        }
+        // Al ser 100% local ahora, podemos definir esto estáticamente o mantener la api si hace falta.
+        // Asumo que para uso personal, tienes todas disponibles, pero por ahora devolvemos estático.
+        set({ availableVueltas: Array.from({length: 20}, (_, i) => i + 1) });
       },
 
       setLocale: (locale) => set({ locale }),
@@ -222,16 +122,28 @@ export const useRepasaStore = create<RepasaState>()(
       markHomeTourSeen: () => set({ hasSeenHomeTour: true }),
       markJuzTourSeen: () => set({ hasSeenJuzTour: true }),
       resetTours: () => set({ hasSeenHomeTour: false, hasSeenJuzTour: false }),
+
+      markPageStudied: (absolutePage: number) => set((state) => {
+        const today = new Date().toISOString().split('T')[0];
+        const currentHistory = state.pageStudyHistory[absolutePage] || [];
+        if (currentHistory.includes(today)) return state; // Ya marcada hoy
+        
+        return {
+          pageStudyHistory: {
+            ...state.pageStudyHistory,
+            [absolutePage]: [...currentHistory, today]
+          }
+        };
+      }),
     }),
     {
-      name: 'repaso-storage-v3', // Nombre actualizado de la plataforma
-      version: 1,
-      // v0 → v1: el idioma por defecto pasa a ser turco. Cambio único en
-      // dispositivos existentes; el usuario puede volver a ES con el botón.
+      name: 'repaso-storage-v4', // Incrementamos versión para el rediseño personal
+      version: 2,
       migrate: (persisted, version) => {
         const state = persisted as PersistedState;
-        if (version < 1) {
-          return { ...state, locale: 'tr' as const };
+        if (version < 2) {
+          // Si migramos desde una versión anterior, añadimos el campo nuevo
+          return { ...state, pageStudyHistory: {} };
         }
         return state;
       },
@@ -245,6 +157,7 @@ export const useRepasaStore = create<RepasaState>()(
         locale: state.locale,
         hasSeenHomeTour: state.hasSeenHomeTour,
         hasSeenJuzTour: state.hasSeenJuzTour,
+        pageStudyHistory: state.pageStudyHistory,
       }),
     }
   )

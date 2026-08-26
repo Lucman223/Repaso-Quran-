@@ -2,39 +2,34 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { BookOpen, Settings, Lock, Globe, BarChart2, Shield, LogOut, User, X, ListMusic, Sparkles, Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { BookOpen, Settings, Lock, Globe, BarChart2, ListMusic, Sparkles, Star, ChevronLeft, ChevronRight, CalendarClock } from "lucide-react";
 import { useRepasaStore } from "@/store/useStore";
 import { useTranslation } from "@/hooks/useTranslation";
 import { citaDelDia, traduccion } from "@/lib/contenido";
 import { GuidedTour, type TourStep } from "@/components/GuidedTour";
-import { signOut, onAuthStateChanged, type User as FirebaseUser } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { getRecommendedPagesToReview } from "@/lib/repetition";
+import { juzOfAbsolutePage, JUZ_STARTING_PAGES } from "@/lib/quran";
 
 export default function Home() {
   const completedVueltasMap = useRepasaStore((state) => state.completedVueltas);
   const availableVueltas = useRepasaStore((state) => state.availableVueltas);
   const fetchAvailableVueltas = useRepasaStore((state) => state.fetchAvailableVueltas);
-  const loadProgressFromServer = useRepasaStore((state) => state.loadProgressFromServer);
   const setLocale = useRepasaStore((state) => state.setLocale);
   const hasSeenHomeTour = useRepasaStore((state) => state.hasSeenHomeTour);
   const markHomeTourSeen = useRepasaStore((state) => state.markHomeTourSeen);
   const resetTours = useRepasaStore((state) => state.resetTours);
+  const pageStudyHistory = useRepasaStore((state) => state.pageStudyHistory);
+  
   const { t, locale } = useTranslation();
   const [showGuide, setShowGuide] = useState(false);
-
   const [isMounted, setIsMounted] = useState(false);
-  const [sessionUser, setSessionUser] = useState<FirebaseUser | null>(null);
-  const [userRole, setUserRole] = useState<string>('user');
-  // El aviso de invitado se oculta una vez que el usuario lo cierra (por dispositivo).
-  // Inicializador perezoso: solo corre en el cliente, sin tocar el server-render.
-  const [guestWarningDismissed, setGuestWarningDismissed] = useState(
-    () => typeof window !== 'undefined' && localStorage.getItem('repaso-guest-warning-dismissed') === '1'
-  );
   
   // Trigger para refrescar la cita motivacional dinámicamente
   const [now, setNow] = useState(new Date());
   // Offset manual para navegar entre las citas
   const [citaOffset, setCitaOffset] = useState(0);
+
+  const [recommendedPages, setRecommendedPages] = useState<number[]>([]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -42,56 +37,14 @@ export default function Home() {
 
     // Actualizar `now` cada minuto para que la cita rote en vivo
     const timer = setInterval(() => setNow(new Date()), 60000);
+    return () => clearInterval(timer);
+  }, [fetchAvailableVueltas]);
 
-    // Escuchar el estado de auth (también se dispara al restaurar la sesión)
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setSessionUser(user);
-      if (user) {
-        const token = await user.getIdToken();
-        checkUserRole(token);
-        // Traer el progreso guardado en el servidor y fusionarlo con el local
-        loadProgressFromServer();
-      } else {
-        setUserRole('user');
-      }
-    });
-
-    return () => {
-      unsubscribe();
-      clearInterval(timer);
-    };
-  }, [fetchAvailableVueltas, loadProgressFromServer]);
-
-  const checkUserRole = async (token: string) => {
-    try {
-      const res = await fetch('/api/auth/me', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setUserRole(data.role || 'user');
-      }
-    } catch (e) {
-      console.error("Error checking user role:", e);
+  useEffect(() => {
+    if (isMounted) {
+      setRecommendedPages(getRecommendedPagesToReview(pageStudyHistory));
     }
-  };
-
-  const dismissGuestWarning = () => {
-    localStorage.setItem('repaso-guest-warning-dismissed', '1');
-    setGuestWarningDismissed(true);
-  };
-
-  const handleLogout = async () => {
-    await signOut(auth);
-    // Limpiar Zustand a valores por defecto para que no se mantenga el progreso del usuario anterior
-    useRepasaStore.setState({
-      completedVueltas: {},
-      pageStats: {},
-      listenStats: {},
-    });
-  };
+  }, [isMounted, pageStudyHistory]);
 
   const steps: TourStep[] = [
     {
@@ -133,7 +86,7 @@ export default function Home() {
   const totalVueltas = 30 * 20;
   const totalProgress = Math.round((totalCompleted / totalVueltas) * 100);
 
-  // Cita motivadora que cambia según la hora (se refresca cada minuto mediante 'now')
+  // Cita motivadora que cambia según la hora
   const cita = citaDelDia(now, citaOffset);
 
   const vueltas = Array.from({ length: 20 }, (_, i) => {
@@ -151,6 +104,15 @@ export default function Home() {
     };
   });
 
+  // Utilidad para convertir página absoluta a enlace de Vuelta/Juz
+  const getPageLink = (absolutePage: number) => {
+    const juz = juzOfAbsolutePage(absolutePage);
+    const juzStart = JUZ_STARTING_PAGES[juz - 1];
+    const pageIdInJuz = absolutePage - juzStart + 1;
+    const vuelta = 21 - pageIdInJuz;
+    return `/vuelta/${vuelta}/juz/${juz}`;
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-[var(--color-background)]">
       <header className="sticky top-0 z-10 flex items-center justify-between p-5 bg-[var(--color-background)]/90 backdrop-blur border-b border-[var(--color-border)]">
@@ -159,7 +121,7 @@ export default function Home() {
             {t('home.arabicTitle')}
           </h1>
           <p className="text-[10px] font-semibold opacity-50 uppercase tracking-widest mt-0.5">
-            {t('home.subtitle')}
+            Mi Espacio Personal
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -199,63 +161,33 @@ export default function Home() {
           >
             <Settings className="w-5 h-5 opacity-60" />
           </button>
-
-          {/* Enlaces de Admin y Auth */}
-          {sessionUser && userRole === 'admin' && (
-            <Link
-              href="/admin"
-              title="Panel Admin"
-              className="p-2 rounded-full hover:bg-[var(--color-card)] text-emerald-500 hover:text-emerald-400 transition-colors"
-            >
-              <Shield className="w-5 h-5" />
-            </Link>
-          )}
-
-          {sessionUser ? (
-            <button
-              onClick={handleLogout}
-              title="Cerrar Sesión"
-              className="p-2 rounded-full hover:bg-[var(--color-card)] text-rose-500 hover:text-rose-400 transition-colors cursor-pointer"
-            >
-              <LogOut className="w-5 h-5" />
-            </button>
-          ) : (
-            <Link
-              href="/login"
-              title="Iniciar Sesión"
-              className="p-2 rounded-full hover:bg-[var(--color-card)] text-[var(--color-primary)] transition-colors"
-            >
-              <User className="w-5 h-5" />
-            </Link>
-          )}
         </div>
       </header>
 
       <main className="flex-1 p-4 md:p-8 pb-8 max-w-5xl mx-auto w-full space-y-8">
-        {/* Aviso para usuarios sin cuenta: el progreso solo se guarda en este dispositivo */}
-        {isMounted && !sessionUser && !guestWarningDismissed && (
-          <div className="flex items-start gap-3 bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 rounded-xl p-4">
-            <div className="flex-1 text-sm">
-              <p className="mb-2 leading-snug">{t('guest.warning')}</p>
-              <Link
-                href="/login"
-                className="inline-block font-semibold text-[var(--color-primary)] hover:underline"
-              >
-                {t('guest.cta')}
-              </Link>
+        
+        {/* Recordatorio de repasos (Nuevo Sistema) */}
+        {isMounted && recommendedPages.length > 0 && (
+          <div className="bg-amber-600/10 border border-amber-600/30 rounded-2xl p-5 shadow-sm">
+            <div className="flex items-center gap-2 mb-4 text-amber-700 dark:text-amber-400">
+              <CalendarClock className="w-5 h-5" />
+              <h2 className="font-bold text-sm uppercase tracking-wider">Tu Repaso de Hoy</h2>
             </div>
-            <button
-              onClick={dismissGuestWarning}
-              title={t('guest.dismiss')}
-              aria-label={t('guest.dismiss')}
-              className="p-1 rounded-full hover:bg-amber-500/20 transition-colors shrink-0"
-            >
-              <X className="w-4 h-4" />
-            </button>
+            <div className="flex flex-wrap gap-2">
+              {recommendedPages.map(page => (
+                <Link 
+                  key={page} 
+                  href={getPageLink(page)}
+                  className="px-4 py-2 bg-[var(--color-card)] border border-[var(--color-border)] hover:border-[var(--color-primary)] rounded-lg text-sm font-semibold transition-colors"
+                >
+                  Pág {page}
+                </Link>
+              ))}
+            </div>
           </div>
         )}
 
-        {/* Cita motivadora del día (hadiz, ayet o frase sobre la hifz) */}
+        {/* Cita motivadora del día */}
         {isMounted && (
           <div className="relative group">
             <Link

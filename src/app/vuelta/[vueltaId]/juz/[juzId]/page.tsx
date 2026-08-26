@@ -53,6 +53,7 @@ export default function PaginaQuran({
     toggleVueltaCompleted,
     setReciter,
     cachePageVerses,
+    markPageStudied,
   } = useRepasaStore();
   const { t } = useTranslation();
 
@@ -735,7 +736,12 @@ export default function PaginaQuran({
           {/* Mark completed button */}
           <button
             id="tour-mark-complete"
-            onClick={() => toggleVueltaCompleted(id, vueltaId)}
+            onClick={() => {
+              toggleVueltaCompleted(id, vueltaId);
+              if (!isVueltaCompleted) {
+                markPageStudied(absolutePage);
+              }
+            }}
             className={`flex-1 py-3 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2 ${
               isVueltaCompleted
                 ? "bg-[var(--color-primary)]/15 text-[var(--color-primary)] border border-[var(--color-primary)]/30"
