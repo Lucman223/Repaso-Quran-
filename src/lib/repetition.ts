@@ -1,3 +1,5 @@
+import { absolutePageOf, vueltaJuzOfAbsolutePage } from './quran';
+
 export function getRecommendedPagesToReview(
   pageStudyHistory: Record<number, string[]>
 ): number[] {
@@ -73,4 +75,78 @@ export function getRecommendedPagesToReview(
   }
 
   return Array.from(recommendations);
+}
+
+export interface MemorizationTarget {
+  vuelta: number;
+  juz: number;
+  absolutePage: number;
+  readyToStart: boolean;
+  inProgressPage: { vuelta: number; juz: number; absolutePage: number; daysStudied: number } | null;
+}
+
+// Calcula la próxima celda (vuelta, juz) sin completar siguiendo el orden
+// del grid (vuelta 1..20, juz 1..30 dentro de cada vuelta), y si el ritmo
+// objetivo (1 página nueva cada 2 días) permite empezarla hoy.
+export function getNextMemorizationTarget(
+  completedVueltas: Record<string, number[]>,
+  pageStudyHistory: Record<number, string[]>
+): MemorizationTarget | null {
+  let target: { vuelta: number; juz: number } | null = null;
+  outer:
+  for (let vuelta = 1; vuelta <= 20; vuelta++) {
+    for (let juz = 1; juz <= 30; juz++) {
+      const done = (completedVueltas[String(juz)] || []).includes(vuelta);
+      if (!done) {
+        target = { vuelta, juz };
+        break outer;
+      }
+    }
+  }
+  if (!target) return null;
+
+  const absolutePage = absolutePageOf(target.juz, target.vuelta);
+
+  let inProgressPage: MemorizationTarget['inProgressPage'] = null;
+  const pages = Object.keys(pageStudyHistory).map(Number);
+  if (pages.length > 0) {
+    const sorted = pages
+      .map((p) => ({ page: p, firstDate: pageStudyHistory[p][0], daysStudied: pageStudyHistory[p].length }))
+      .sort((a, b) => a.firstDate.localeCompare(b.firstDate));
+    const last = sorted[sorted.length - 1];
+    if (last.daysStudied < 2) {
+      const loc = vueltaJuzOfAbsolutePage(last.page);
+      inProgressPage = { vuelta: loc.vuelta, juz: loc.juz, absolutePage: last.page, daysStudied: last.daysStudied };
+    }
+  }
+
+  const readyToStart = inProgressPage === null;
+
+  return { vuelta: target.vuelta, juz: target.juz, absolutePage, readyToStart, inProgressPage };
+}
+
+function streakFromDateSet(dates: Set<string>): number {
+  let streak = 0;
+  const cursor = new Date();
+  while (true) {
+    const key = cursor.toISOString().split('T')[0];
+    if (dates.has(key)) {
+      streak++;
+      cursor.setDate(cursor.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+  return streak;
+}
+
+export function getMemorizationStreak(pageStudyHistory: Record<number, string[]>): number {
+  const dates = new Set<string>();
+  Object.values(pageStudyHistory).forEach((arr) => arr.forEach((d) => dates.add(d)));
+  return streakFromDateSet(dates);
+}
+
+export function getLecturaStreak(lecturaHistory: Record<string, number>): number {
+  const dates = new Set(Object.keys(lecturaHistory).filter((d) => lecturaHistory[d] > 0));
+  return streakFromDateSet(dates);
 }

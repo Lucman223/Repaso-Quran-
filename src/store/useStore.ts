@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Reciter, Verse } from '@/lib/quran';
+import { TOTAL_MUSHAF_PAGES, type Reciter, type Verse } from '@/lib/quran';
 
 type PageStats = Record<string, { listenCount: number; recordCount: number }>;
 type ListenStats = Record<string, { type: 'page' | 'ayah'; counts: Record<string, number> }>;
@@ -18,6 +18,10 @@ type PersistedState = {
   hasSeenJuzTour: boolean;
   // NUEVO: Historial de estudio de páginas. Mapea número de página absoluto a fechas de estudio (YYYY-MM-DD)
   pageStudyHistory: Record<number, string[]>;
+  // Lectura secuencial (Jatma completa): última página leída, meta diaria y páginas leídas por día
+  lecturaCurrentPage: number;
+  lecturaDailyGoal: number;
+  lecturaHistory: Record<string, number>;
 };
 
 interface RepasaState extends PersistedState {
@@ -34,6 +38,8 @@ interface RepasaState extends PersistedState {
   markJuzTourSeen: () => void;
   resetTours: () => void;
   markPageStudied: (absolutePage: number) => void;
+  adjustLecturaPage: (delta: number) => void;
+  setLecturaDailyGoal: (goal: number) => void;
 }
 
 export const useRepasaStore = create<RepasaState>()(
@@ -49,6 +55,9 @@ export const useRepasaStore = create<RepasaState>()(
       hasSeenHomeTour: false,
       hasSeenJuzTour: false,
       pageStudyHistory: {},
+      lecturaCurrentPage: 0,
+      lecturaDailyGoal: 10,
+      lecturaHistory: {},
 
       markVueltaCompleted: (juzId, vueltaId) => set((state) => {
         const currentJuz = state.completedVueltas[juzId] || [];
@@ -135,17 +144,43 @@ export const useRepasaStore = create<RepasaState>()(
           }
         };
       }),
+
+      adjustLecturaPage: (delta: number) => set((state) => {
+        const newPage = Math.max(0, Math.min(TOTAL_MUSHAF_PAGES, state.lecturaCurrentPage + delta));
+        const actualDelta = newPage - state.lecturaCurrentPage;
+        if (actualDelta === 0) return state;
+        const today = new Date().toISOString().split('T')[0];
+        const todayCount = state.lecturaHistory[today] || 0;
+        const newTodayCount = Math.max(0, todayCount + actualDelta);
+        return {
+          lecturaCurrentPage: newPage,
+          lecturaHistory: { ...state.lecturaHistory, [today]: newTodayCount },
+        };
+      }),
+
+      setLecturaDailyGoal: (goal: number) => set({
+        lecturaDailyGoal: Math.max(1, Math.min(TOTAL_MUSHAF_PAGES, Math.round(goal))),
+      }),
     }),
     {
       name: 'repaso-storage-v4', // Incrementamos versión para el rediseño personal
-      version: 2,
+      version: 3,
       migrate: (persisted, version) => {
         const state = persisted as PersistedState;
+        let migrated = state;
         if (version < 2) {
           // Si migramos desde una versión anterior, añadimos el campo nuevo
-          return { ...state, pageStudyHistory: {} };
+          migrated = { ...migrated, pageStudyHistory: {} };
         }
-        return state;
+        if (version < 3) {
+          migrated = {
+            ...migrated,
+            lecturaCurrentPage: migrated.lecturaCurrentPage ?? 0,
+            lecturaDailyGoal: migrated.lecturaDailyGoal ?? 10,
+            lecturaHistory: migrated.lecturaHistory ?? {},
+          };
+        }
+        return migrated;
       },
       partialize: (state) => ({
         completedVueltas: state.completedVueltas,
@@ -158,6 +193,9 @@ export const useRepasaStore = create<RepasaState>()(
         hasSeenHomeTour: state.hasSeenHomeTour,
         hasSeenJuzTour: state.hasSeenJuzTour,
         pageStudyHistory: state.pageStudyHistory,
+        lecturaCurrentPage: state.lecturaCurrentPage,
+        lecturaDailyGoal: state.lecturaDailyGoal,
+        lecturaHistory: state.lecturaHistory,
       }),
     }
   )

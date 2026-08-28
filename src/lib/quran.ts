@@ -20,7 +20,7 @@ export const JUZ_STARTING_PAGES = [
   402, 422, 442, 462, 482, 502, 522, 542, 562, 582,
 ];
 
-export const AVAILABLE_VUELTAS = [1, 2];
+export const AVAILABLE_VUELTAS = Array.from({ length: 20 }, (_, i) => i + 1);
 
 // Número de páginas por juz en el Mushaf de Medina (~20 cada uno).
 export const PAGES_PER_JUZ = 20;
@@ -55,6 +55,16 @@ export function juzOfAbsolutePage(absolutePage: number): number {
     else break;
   }
   return juz;
+}
+
+// Inversa de absolutePageOf: dada una página absoluta del Mushaf, calcula a
+// qué combinación (juz, vuelta) del método de vueltas pertenece.
+export function vueltaJuzOfAbsolutePage(absolutePage: number): { juz: number; vuelta: number } {
+  const juz = juzOfAbsolutePage(absolutePage);
+  const juzStart = JUZ_STARTING_PAGES[juz - 1] ?? 1;
+  const pageId = absolutePage - juzStart + 1; // 1..20
+  const vuelta = 21 - pageId;
+  return { juz, vuelta };
 }
 
 // Ruta de la imagen del Mushaf para una página de una vuelta. El contenido se
