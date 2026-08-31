@@ -59,12 +59,15 @@ export function juzOfAbsolutePage(absolutePage: number): number {
 
 // Inversa de absolutePageOf: dada una página absoluta del Mushaf, calcula a
 // qué combinación (juz, vuelta) del método de vueltas pertenece.
-export function vueltaJuzOfAbsolutePage(absolutePage: number): { juz: number; vuelta: number } {
-  const juz = juzOfAbsolutePage(absolutePage);
+export function vueltaJuzOfAbsolutePage(absolutePage: number): { vuelta: number; juz: number } {
+  // Fix for Page 1 (Al-Fatiha): Treat it as part of Juz 1, Page 2 for the Ottoman method calculations
+  // to prevent it from generating an invalid Vuelta 21
+  const effectivePage = absolutePage < 2 ? 2 : absolutePage;
+  const juz = juzOfAbsolutePage(effectivePage);
   const juzStart = JUZ_STARTING_PAGES[juz - 1] ?? 1;
-  const pageId = absolutePage - juzStart + 1; // 1..20
+  const pageId = effectivePage - juzStart + 1; // 1 to 20
   const vuelta = 21 - pageId;
-  return { juz, vuelta };
+  return { vuelta, juz };
 }
 
 // Ruta de la imagen del Mushaf para una página de una vuelta. El contenido se
