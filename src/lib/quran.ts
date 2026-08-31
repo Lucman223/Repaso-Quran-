@@ -74,7 +74,7 @@ export function vueltaJuzOfAbsolutePage(absolutePage: number): { vuelta: number;
 // sube por vuelta: /Coran/{vuelta}V/P{localPageNumber}.png. Puede no existir
 // todavía (el reproductor muestra un placeholder en ese caso).
 export function pageImageUrl(juz: number, vuelta: number): string {
-  return `/Coran/${vuelta}V/P${localPageNumber(juz, vuelta)}.png`;
+  return `/Coran/${vuelta}V/P${localPageNumber(juz, vuelta)}.png?v=2`;
 }
 
 export function getAyahAudioUrl(

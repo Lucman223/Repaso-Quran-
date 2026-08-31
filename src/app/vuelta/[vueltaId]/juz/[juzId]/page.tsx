@@ -506,7 +506,7 @@ export default function PaginaQuran({
           <div className="w-full mx-auto max-w-lg premium-card rounded-xl overflow-hidden relative min-h-[500px]">
             <div className="relative w-full aspect-[2/3] flex flex-col items-center justify-start p-2 bg-white/50">
               <img
-                src={`/Coran/${vueltaId}V/P${localPageNumber}.png`}
+                src={`/Coran/${vueltaId}V/P${localPageNumber}.png?v=2`}
                 alt={`Página ${localPageNumber} del Mushaf`}
                 className="w-full h-full object-contain mix-blend-multiply"
                 onError={(e) => {
