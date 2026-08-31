@@ -113,6 +113,24 @@
     "imageMissing": "Imagen aún no disponible (J{j} · V{v})",
     "pageAlt": "Página {p} del Mushaf"
   },
+  "centro": {
+    "title": "Centro de Repaso",
+    "subtitle": "Elige qué repasar de forma inteligente",
+    "tabSmart": "Inteligente",
+    "tabPlaylists": "Listas",
+    "tabHeatmap": "Mapa",
+    "smartTitle": "Repaso Inteligente",
+    "smartDesc": "Genera una lista automática con las páginas que más necesitas repasar.",
+    "smartBtn": "Generar Repaso (10 págs)",
+    "playlistTitle": "Tus Listas",
+    "playlistEmpty": "No tienes listas creadas.",
+    "playlistNew": "Nueva Lista",
+    "heatmapTitle": "Mapa de Calor",
+    "heatmapDesc": "Toca un Juz para ver sus páginas.",
+    "cartStart": "Reproducir ({n})",
+    "cartClear": "Vaciar",
+    "cartSave": "Guardar como Lista"
+  },
   "motivacion": {
     "title": "Por qué memorizar",
     "dailyLabel": "Cita del día",

@@ -22,6 +22,8 @@ type PersistedState = {
   lecturaCurrentPage: number;
   lecturaDailyGoal: number;
   lecturaHistory: Record<string, number>;
+  // Playlists de repaso
+  playlists: Record<string, number[]>;
 };
 
 interface RepasaState extends PersistedState {
@@ -40,6 +42,8 @@ interface RepasaState extends PersistedState {
   markPageStudied: (absolutePage: number) => void;
   adjustLecturaPage: (delta: number) => void;
   setLecturaDailyGoal: (goal: number) => void;
+  createPlaylist: (name: string, pages: number[]) => void;
+  deletePlaylist: (name: string) => void;
 }
 
 export const useRepasaStore = create<RepasaState>()(
@@ -58,6 +62,7 @@ export const useRepasaStore = create<RepasaState>()(
       lecturaCurrentPage: 0,
       lecturaDailyGoal: 10,
       lecturaHistory: {},
+      playlists: {},
 
       markVueltaCompleted: (juzId, vueltaId) => set((state) => {
         const currentJuz = state.completedVueltas[juzId] || [];
@@ -161,10 +166,20 @@ export const useRepasaStore = create<RepasaState>()(
       setLecturaDailyGoal: (goal: number) => set({
         lecturaDailyGoal: Math.max(1, Math.min(TOTAL_MUSHAF_PAGES, Math.round(goal))),
       }),
+
+      createPlaylist: (name: string, pages: number[]) => set((state) => ({
+        playlists: { ...state.playlists, [name]: pages },
+      })),
+
+      deletePlaylist: (name: string) => set((state) => {
+        const newPlaylists = { ...state.playlists };
+        delete newPlaylists[name];
+        return { playlists: newPlaylists };
+      }),
     }),
     {
       name: 'repaso-storage-v4', // Incrementamos versión para el rediseño personal
-      version: 3,
+      version: 4,
       migrate: (persisted, version) => {
         const state = persisted as PersistedState;
         let migrated = state;
@@ -178,6 +193,12 @@ export const useRepasaStore = create<RepasaState>()(
             lecturaCurrentPage: migrated.lecturaCurrentPage ?? 0,
             lecturaDailyGoal: migrated.lecturaDailyGoal ?? 10,
             lecturaHistory: migrated.lecturaHistory ?? {},
+          };
+        }
+        if (version < 4) {
+          migrated = {
+            ...migrated,
+            playlists: migrated.playlists ?? {},
           };
         }
         return migrated;
@@ -196,6 +217,7 @@ export const useRepasaStore = create<RepasaState>()(
         lecturaCurrentPage: state.lecturaCurrentPage,
         lecturaDailyGoal: state.lecturaDailyGoal,
         lecturaHistory: state.lecturaHistory,
+        playlists: state.playlists,
       }),
     }
   )

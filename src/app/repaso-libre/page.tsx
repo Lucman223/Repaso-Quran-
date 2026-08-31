@@ -20,6 +20,7 @@ import {
   pageImageUrl,
   absolutePageOf,
   juzOfAbsolutePage,
+  vueltaJuzOfAbsolutePage,
   RECITERS,
   type Reciter,
 } from "@/lib/quran";
@@ -292,11 +293,20 @@ function RepasoLibrePlayer() {
   }, []);
 
   // Para cada página absoluta del item actual, derivar la vuelta/juz a mostrar.
-  // Las imágenes se sirven por vuelta; para un segmento "pagina" usamos su
-  // vuelta; para rangos, usamos la vuelta 1 como referencia visual.
+  // Las imágenes se sirven por vuelta; para un segmento "pagina" usamos su vuelta original.
+  // Para "rango" o "absoluta", usamos la vuelta natural del método otomano.
   const imageInfoFor = (absolutePage: number, item: PlaylistItem) => {
-    const juz = juzOfAbsolutePage(absolutePage);
-    const vuelta = item.seg.tipo === "pagina" ? item.seg.vuelta : 1;
+    let juz = juzOfAbsolutePage(absolutePage);
+    let vuelta = 1;
+
+    if (item.seg.tipo === "pagina") {
+      vuelta = item.seg.vuelta;
+    } else {
+      const natural = vueltaJuzOfAbsolutePage(absolutePage);
+      vuelta = natural.vuelta;
+      juz = natural.juz;
+    }
+
     return { juz, vuelta, url: pageImageUrl(juz, vuelta), absolutePage };
   };
 

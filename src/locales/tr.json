@@ -111,7 +111,25 @@
     "empty": "Tekrar edilecek bir şey yok.",
     "errorItem": "Bu bölüm çalınamadı, atlanıyor…",
     "imageMissing": "Görsel henüz mevcut değil (C{j} · T{v})",
-    "pageAlt": "Mushaf sayfası {p}"
+    "pageAlt": "Mushaf Sayfası {p}"
+  },
+  "centro": {
+    "title": "Tekrar Merkezi",
+    "subtitle": "Akıllıca ne tekrar edeceğinizi seçin",
+    "tabSmart": "Akıllı",
+    "tabPlaylists": "Listeler",
+    "tabHeatmap": "Harita",
+    "smartTitle": "Akıllı Tekrar",
+    "smartDesc": "En çok tekrar etmeniz gereken sayfalarla otomatik bir liste oluşturun.",
+    "smartBtn": "Tekrar Oluştur (10 sayfa)",
+    "playlistTitle": "Listeleriniz",
+    "playlistEmpty": "Henüz oluşturulmuş listeniz yok.",
+    "playlistNew": "Yeni Liste",
+    "heatmapTitle": "Isı Haritası",
+    "heatmapDesc": "Sayfalarını görmek için bir Cüz'e dokunun.",
+    "cartStart": "Oynat ({n})",
+    "cartClear": "Temizle",
+    "cartSave": "Liste Olarak Kaydet"
   },
   "motivacion": {
     "title": "Neden hafızlık?",

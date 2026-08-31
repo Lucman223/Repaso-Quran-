@@ -14,7 +14,8 @@ import {
 //    Se identifica por la aleya inicial y final en formato "sura:aleya".
 export type Segmento =
   | { tipo: "pagina"; juz: number; vuelta: number }
-  | { tipo: "rango"; desde: string; hasta: string };
+  | { tipo: "rango"; desde: string; hasta: string }
+  | { tipo: "absoluta"; pagina: number };
 
 // Comparación de claves de aleya "sura:aleya": ordena primero por sura y luego
 // por número de aleya, de modo que "2:7" < "2:15" < "3:1".
@@ -76,6 +77,11 @@ export async function resolverSegmento(
     return { verses, pages: [absolutePage], juz: seg.juz };
   }
 
+  if (seg.tipo === "absoluta") {
+    const verses = await fetchPageVerses(seg.pagina);
+    return { verses, pages: [seg.pagina], juz: juzOfAbsolutePage(seg.pagina) };
+  }
+
   // Rango de aleyas: localizar la página de inicio y la de fin, traer todas las
   // aleyas del tramo de páginas y recortar a [desde, hasta].
   const start = await findPageOfVerse(seg.desde);
@@ -106,5 +112,6 @@ export async function resolverSegmento(
 // resolverlo (no requiere red).
 export function labelSegmento(seg: Segmento): string {
   if (seg.tipo === "pagina") return `J${seg.juz} · V${seg.vuelta}`;
+  if (seg.tipo === "absoluta") return `Pág. ${seg.pagina}`;
   return `${seg.desde}–${seg.hasta}`;
 }
