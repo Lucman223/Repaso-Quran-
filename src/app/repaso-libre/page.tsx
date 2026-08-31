@@ -406,7 +406,9 @@ function RepasoLibrePlayer() {
           >
             {item.seg.tipo === "pagina"
               ? `J${item.seg.juz}·V${item.seg.vuelta}`
-              : `${item.seg.desde}–${item.seg.hasta}`}
+              : item.seg.tipo === "rango"
+                ? `${item.seg.desde}–${item.seg.hasta}`
+                : `Pág ${item.seg.pagina}`}
           </button>
         ))}
       </div>
