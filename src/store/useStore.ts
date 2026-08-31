@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { TOTAL_MUSHAF_PAGES, type Reciter, type Verse } from '@/lib/quran';
+import { getTodayDateString } from '@/lib/dateUtils';
 
 type PageStats = Record<string, { listenCount: number; recordCount: number }>;
 type ListenStats = Record<string, { type: 'page' | 'ayah'; counts: Record<string, number> }>;
@@ -138,7 +139,7 @@ export const useRepasaStore = create<RepasaState>()(
       resetTours: () => set({ hasSeenHomeTour: false, hasSeenJuzTour: false }),
 
       markPageStudied: (absolutePage: number) => set((state) => {
-        const today = new Date().toISOString().split('T')[0];
+        const today = getTodayDateString();
         const currentHistory = state.pageStudyHistory[absolutePage] || [];
         if (currentHistory.includes(today)) return state; // Ya marcada hoy
         
@@ -154,7 +155,7 @@ export const useRepasaStore = create<RepasaState>()(
         const newPage = Math.max(0, Math.min(TOTAL_MUSHAF_PAGES, state.lecturaCurrentPage + delta));
         const actualDelta = newPage - state.lecturaCurrentPage;
         if (actualDelta === 0) return state;
-        const today = new Date().toISOString().split('T')[0];
+        const today = getTodayDateString();
         const todayCount = state.lecturaHistory[today] || 0;
         const newTodayCount = Math.max(0, todayCount + actualDelta);
         return {
