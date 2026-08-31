@@ -51,6 +51,7 @@ function NuevoCentroRepaso() {
   const [cart, setCart] = useState<number[]>([]);
   const [reps, setReps] = useState(1);
   const [mode, setMode] = useState<"seq" | "page">("seq");
+  const [visualAmount, setVisualAmount] = useState(2);
   
   const startReview = (pages: number[], forceReps = reps, forceMode = mode) => {
     if (pages.length === 0) return;
@@ -92,6 +93,29 @@ function NuevoCentroRepaso() {
     }
     
     startReview(selected, 1, "seq");
+  };
+
+  const handleOttomanVisual = () => {
+    const state = useRepasaStore.getState();
+    const completed = state.completedVueltas;
+    
+    const candidates: number[] = [];
+    for (let v = 1; v <= 20; v++) {
+      for (let j = 1; j <= 30; j++) {
+        if (!completed[j] || !completed[j].includes(v)) {
+          // This page is not completed in the official method
+          const absolutePage = (JUZ_STARTING_PAGES[j - 1] ?? 1) + (21 - v) - 1;
+          candidates.push(absolutePage);
+        }
+      }
+    }
+    
+    // Pick the next 'visualAmount' pages
+    const toStudy = candidates.slice(0, visualAmount);
+    if (toStudy.length === 0) return; // All completed? wow
+    
+    sessionStorage.setItem("ESTUDIO_VISUAL_KEY", JSON.stringify(toStudy));
+    router.push("/estudio-visual");
   };
 
   const handleCreatePlaylist = () => {
@@ -165,6 +189,35 @@ function NuevoCentroRepaso() {
               <Play className="w-5 h-5 fill-current" />
               {t("centro.smartBtn")}
             </button>
+            
+            <div className="w-full h-[1px] bg-[var(--color-border)] my-4 opacity-50" />
+            
+            <div className="flex flex-col items-center">
+              <h2 className="text-xl font-bold mb-2">Ruta Otomana (Visual)</h2>
+              <p className="text-sm opacity-60 max-w-sm mx-auto leading-relaxed mb-4">
+                Memoriza visualmente las próximas páginas que te tocan siguiendo el método tradicional.
+              </p>
+              
+              <div className="flex items-center gap-3">
+                <select 
+                  value={visualAmount}
+                  onChange={(e) => setVisualAmount(Number(e.target.value))}
+                  className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl px-4 py-3 font-semibold focus:outline-none"
+                >
+                  <option value={1}>1 pág.</option>
+                  <option value={2}>2 págs.</option>
+                  <option value={3}>3 págs.</option>
+                  <option value={4}>4 págs.</option>
+                </select>
+                <button 
+                  onClick={handleOttomanVisual}
+                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-gold)] text-white font-bold shadow-lg shadow-[var(--color-primary)]/30 hover:scale-105 active:scale-95 transition-all"
+                >
+                  <LayoutGrid className="w-5 h-5 fill-current opacity-80" />
+                  Iniciar Sesión
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
