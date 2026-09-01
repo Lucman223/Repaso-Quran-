@@ -157,6 +157,13 @@ export default function Home() {
             <ListMusic className="w-5 h-5 opacity-60" />
           </Link>
           <Link
+            href="/suplicas"
+            title="Súplicas (Duas)"
+            className="p-2 rounded-full hover:bg-[var(--color-card)] transition-colors"
+          >
+            <BookOpen className="w-5 h-5 opacity-60" />
+          </Link>
+          <Link
             id="tour-stats-btn"
             href="/stats"
             title="Estadísticas"

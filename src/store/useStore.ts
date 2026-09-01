@@ -25,6 +25,8 @@ type PersistedState = {
   lecturaHistory: Record<string, number>;
   // Playlists de repaso
   playlists: Record<string, number[]>;
+  // Historial de súplicas (duas)
+  suplicasHistory: Record<string, string[]>;
 };
 
 interface RepasaState extends PersistedState {
@@ -45,6 +47,7 @@ interface RepasaState extends PersistedState {
   setLecturaDailyGoal: (goal: number) => void;
   createPlaylist: (name: string, pages: number[]) => void;
   deletePlaylist: (name: string) => void;
+  markSuplicaStudied: (suplicaId: string) => void;
 }
 
 export const useRepasaStore = create<RepasaState>()(
@@ -64,6 +67,7 @@ export const useRepasaStore = create<RepasaState>()(
       lecturaDailyGoal: 10,
       lecturaHistory: {},
       playlists: {},
+      suplicasHistory: {},
 
       markVueltaCompleted: (juzId, vueltaId) => set((state) => {
         const currentJuz = state.completedVueltas[juzId] || [];
@@ -177,10 +181,23 @@ export const useRepasaStore = create<RepasaState>()(
         delete newPlaylists[name];
         return { playlists: newPlaylists };
       }),
+
+      markSuplicaStudied: (suplicaId: string) => set((state) => {
+        const today = getTodayDateString();
+        const currentHistory = state.suplicasHistory[suplicaId] || [];
+        if (currentHistory.includes(today)) return state;
+        
+        return {
+          suplicasHistory: {
+            ...state.suplicasHistory,
+            [suplicaId]: [...currentHistory, today]
+          }
+        };
+      }),
     }),
     {
-      name: 'repaso-storage-v4', // Incrementamos versión para el rediseño personal
-      version: 4,
+      name: 'repaso-storage-v5', // Incrementamos versión para suplicas
+      version: 5,
       migrate: (persisted, version) => {
         const state = persisted as PersistedState;
         let migrated = state;
@@ -202,6 +219,12 @@ export const useRepasaStore = create<RepasaState>()(
             playlists: migrated.playlists ?? {},
           };
         }
+        if (version < 5) {
+          migrated = {
+            ...migrated,
+            suplicasHistory: (migrated as any).suplicasHistory ?? {},
+          };
+        }
         return migrated;
       },
       partialize: (state) => ({
@@ -219,6 +242,7 @@ export const useRepasaStore = create<RepasaState>()(
         lecturaDailyGoal: state.lecturaDailyGoal,
         lecturaHistory: state.lecturaHistory,
         playlists: state.playlists,
+        suplicasHistory: state.suplicasHistory,
       }),
     }
   )
