@@ -413,10 +413,10 @@ export default function SuplicasPage() {
                 <div className="px-5 pb-5 pt-1 animate-in fade-in slide-in-from-top-2 duration-200 border-t border-slate-100">
                   
                   {/* Botones de acción (Historial y Traducción) */}
-                  <div className="flex justify-end gap-2 mb-3">
+                  <div className="flex flex-wrap sm:flex-nowrap justify-end gap-2 mb-3">
                     <button
                       onClick={() => setShowTranslationFor(showingTranslation ? null : suplica.id)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors border ${
+                      className={`flex-1 sm:flex-none justify-center px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors border ${
                         showingTranslation 
                           ? "bg-indigo-50 border-indigo-200 text-indigo-700" 
                           : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
@@ -428,7 +428,7 @@ export default function SuplicasPage() {
                     
                     <button
                       onClick={() => setShowHistoryFor(showingHistory ? null : suplica.id)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors border ${
+                      className={`flex-1 sm:flex-none justify-center px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors border ${
                         showingHistory 
                           ? "bg-slate-100 border-slate-300 text-slate-700" 
                           : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
