@@ -37,6 +37,7 @@ export default function Home() {
   const [selectedVuelta, setSelectedVuelta] = useState(1);
 
   const [recommendedPages, setRecommendedPages] = useState<number[]>([]);
+  const [pagesStudiedToday, setPagesStudiedToday] = useState<number[]>([]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -50,6 +51,8 @@ export default function Home() {
   useEffect(() => {
     if (isMounted) {
       setRecommendedPages(getRecommendedPagesToReview(pageStudyHistory));
+      const today = getTodayDateString(new Date());
+      setPagesStudiedToday(Object.keys(pageStudyHistory).map(Number).filter(p => pageStudyHistory[p].includes(today)));
     }
   }, [isMounted, pageStudyHistory]);
 
@@ -126,6 +129,10 @@ export default function Home() {
   const lecturaStreak = isMounted ? getLecturaStreak(lecturaHistory) : 0;
   const memoStreak = isMounted ? getMemorizationStreak(pageStudyHistory) : 0;
   const memoTarget = isMounted ? getNextMemorizationTarget(completedVueltasMap, pageStudyHistory) : null;
+
+  const visibleReviewPages = Array.from(new Set([...recommendedPages, ...pagesStudiedToday]))
+    .filter(p => p !== memoTarget?.inProgressPage?.absolutePage && (!memoTarget?.readyToStart || p !== memoTarget?.absolutePage))
+    .sort((a, b) => a - b);
 
   return (
     <div className="flex flex-col min-h-screen bg-[var(--color-background)]">
@@ -252,20 +259,26 @@ export default function Home() {
             </div>
             <p className="text-[11px] opacity-50 mb-4">Método Otomano · ritmo 1 página / 2 días</p>
 
-            {recommendedPages.length > 0 && (
+            {visibleReviewPages.length > 0 && (
               <div className="mb-4">
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-emerald-700 mb-2">Repasar hoy</p>
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-emerald-700 mb-2">Repaso e historial de hoy</p>
                 <div className="flex flex-wrap gap-2">
-                  {recommendedPages.map(page => {
+                  {visibleReviewPages.map(page => {
                     const { juz, vuelta } = vueltaJuzOfAbsolutePage(page);
                     const localPage = (juz - 1) * 20 + (21 - vuelta);
+                    const isDoneToday = pagesStudiedToday.includes(page);
                     return (
                       <Link
                         key={page}
                         href={getPageLink(page)}
-                        className="px-3 py-1.5 bg-emerald-50 border border-emerald-200 hover:border-emerald-500 rounded-lg text-xs font-semibold text-emerald-800 transition-all"
+                        className={`px-3 py-1.5 border rounded-lg text-xs font-semibold transition-all flex items-center gap-1 ${
+                          isDoneToday
+                            ? 'bg-emerald-100/50 border-emerald-200 text-emerald-700 opacity-80 hover:opacity-100 hover:border-emerald-400'
+                            : 'bg-emerald-50 border-emerald-200 hover:border-emerald-500 text-emerald-800'
+                        }`}
                       >
                         Pág {localPage}
+                        {isDoneToday && <Check className="w-3 h-3" />}
                       </Link>
                     );
                   })}
@@ -283,9 +296,9 @@ export default function Home() {
                     Juz {memoTarget.juz} · Pág {(memoTarget.juz - 1) * 20 + (21 - memoTarget.vuelta)} →
                   </Link>
                 ) : (
-                  <p className="text-sm font-medium text-slate-700">
-                    Pág {memoTarget.inProgressPage ? (memoTarget.inProgressPage.juz - 1) * 20 + (21 - memoTarget.inProgressPage.vuelta) : "?"} — dale un día más antes de avanzar
-                  </p>
+                  <Link href={`/vuelta/${memoTarget.inProgressPage?.vuelta}/juz/${memoTarget.inProgressPage?.juz}`} className="text-sm font-medium text-slate-700 hover:text-emerald-700 hover:underline flex items-center gap-1">
+                    Pág {memoTarget.inProgressPage ? (memoTarget.inProgressPage.juz - 1) * 20 + (21 - memoTarget.inProgressPage.vuelta) : "?"} — dale un día más antes de avanzar →
+                  </Link>
                 )}
               </div>
             ) : (
