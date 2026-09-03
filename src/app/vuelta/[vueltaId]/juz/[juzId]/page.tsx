@@ -15,11 +15,14 @@ import {
   Repeat,
 } from "lucide-react";
 import { useRepasaStore } from "@/store/useStore";
+import { useRouter } from "next/navigation";
 import {
   fetchPageVerses,
   getAyahAudioUrl,
   JUZ_STARTING_PAGES,
   RECITERS,
+  TOTAL_MUSHAF_PAGES,
+  vueltaJuzOfAbsolutePage,
   type Reciter,
   type Verse,
 } from "@/lib/quran";
@@ -31,6 +34,7 @@ export default function PaginaQuran({
 }: {
   params: Promise<{ vueltaId: string; juzId: string }>;
 }) {
+  const router = useRouter();
   const { vueltaId: rawVueltaId, juzId: rawJuzId } = use(params);
 
   const vueltaId = parseInt(rawVueltaId);
@@ -59,6 +63,35 @@ export default function PaginaQuran({
 
   const currentStats = pageStats[pageKey] ?? { listenCount: 0, recordCount: 0 };
   const isVueltaCompleted = (completedVueltas[id] ?? []).includes(vueltaId);
+
+  // Swipe gesture state
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+    
+    if (isLeftSwipe && absolutePage < TOTAL_MUSHAF_PAGES) {
+      const next = vueltaJuzOfAbsolutePage(absolutePage + 1);
+      router.push(`/vuelta/${next.vuelta}/juz/${next.juz}`);
+    }
+    if (isRightSwipe && absolutePage > 1) {
+      const prev = vueltaJuzOfAbsolutePage(absolutePage - 1);
+      router.push(`/vuelta/${prev.vuelta}/juz/${prev.juz}`);
+    }
+  };
 
   const hasSeenJuzTour = useRepasaStore((state) => state.hasSeenJuzTour);
   const markJuzTourSeen = useRepasaStore((state) => state.markJuzTourSeen);
@@ -479,7 +512,12 @@ export default function PaginaQuran({
       </div>
 
       {/* Verse list — scrollable */}
-      <main className="flex-1 overflow-y-auto">
+      <main 
+        className="flex-1 overflow-y-auto"
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
         {loading && (
           <div className="flex flex-col items-center justify-center h-48 gap-3 opacity-60">
             <Loader2 className="w-7 h-7 animate-spin text-[var(--color-primary)]" />

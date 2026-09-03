@@ -31,6 +31,40 @@ function EstudioVisual() {
   const { juz, vuelta } = vueltaJuzOfAbsolutePage(absolutePage);
   const localPageNumber = (juz - 1) * 20 + (21 - vuelta);
 
+  // Swipe gesture state
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+    
+    if (isLeftSwipe && currentIndex < pages.length - 1) {
+      handleNext();
+    }
+    if (isRightSwipe && currentIndex > 0) {
+      handlePrev();
+    }
+  };
+
+  const handlePrev = () => {
+    if (globalAudioRef.current) {
+      globalAudioRef.current.pause();
+    }
+    setCurrentIndex(curr => curr - 1);
+  };
+
   const handleNext = () => {
     // Marcar como completada en la ruta Otomana
     markVueltaCompleted(juz.toString(), vuelta);
@@ -71,7 +105,12 @@ function EstudioVisual() {
       </header>
 
       {/* Main Content - Image */}
-      <main className="flex-1 flex flex-col items-center justify-center p-4">
+      <main 
+        className="flex-1 flex flex-col items-center justify-center p-4"
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+      >
         <div className="w-full max-w-lg bg-white rounded-xl overflow-hidden shadow-lg border border-[var(--color-border)] relative">
           <div className="absolute top-0 inset-x-0 bg-gradient-to-b from-black/5 to-transparent h-10 pointer-events-none" />
           
